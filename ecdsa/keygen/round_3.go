@@ -92,6 +92,17 @@ func (round *round3) Start() *tss.Error {
 				ch <- vssOut{errors.New("vss verify failed"), nil}
 				return
 			}
+			FacProof := r2msg1.UnmarshalFactorProof()
+			pkN := round.save.PaillierPKs[j].N
+			N := round.save.LocalPreParams.PaillierSK.PublicKey.N
+			s, t := round.temp.Si, round.temp.Ti
+			ok, err = FacProof.FactorVerify(pkN, N, s, t)
+			if err != nil {
+				ch <- vssOut{err, nil}
+			}
+			if !ok {
+				ch <- vssOut{errors.New("factor proof verify failed"), nil}
+			}
 			// (9) handled above
 			ch <- vssOut{nil, PjVs}
 		}(j, chs[j])
