@@ -74,3 +74,14 @@ func TestUnmarshalSigned(t *testing.T) {
 		"0xffff should unmarshal to -255",
 	)
 }
+
+func TestAnyIsNil(t *testing.T) {
+	assert := assert.New(t)
+
+	assert.True(common.AnyIsNil(nil))
+	assert.False(common.AnyIsNil(big.NewInt(1)))
+
+	assert.True(common.AnyIsNil(big.NewInt(1), nil))
+	assert.True(common.AnyIsNil(nil, big.NewInt(2)))
+	assert.False(common.AnyIsNil(big.NewInt(1), big.NewInt(2)))
+}

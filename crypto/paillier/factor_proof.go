@@ -74,6 +74,13 @@ func (privateKey *PrivateKey) FactorProof(N, s, t *big.Int) *FactorProof {
 }
 
 func (pf FactorProof) FactorVerify(pkN, N, s, t *big.Int) (bool, error) {
+	if common.AnyIsNil(pkN, N, s, t) {
+		return false, fmt.Errorf("fac proof verify: nil bigint present in args")
+	}
+	if common.AnyIsNil(pf.P, pf.Q, pf.A, pf.B, pf.T, pf.Sigma, pf.Z1, pf.Z2, pf.W1, pf.W2, pf.V) {
+		return false, fmt.Errorf("fac proof verify: nil bigint present in proof")
+	}
+
 	e := FactorChallenge(N, s, t, pkN, pf.P, pf.Q, pf.A, pf.B, pf.T, pf.Sigma)
 
 	modN := common.ModInt(N)

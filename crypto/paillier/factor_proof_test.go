@@ -51,11 +51,28 @@ func TestFactorProofVerify(t *testing.T) {
 	assert.True(t, res, "proof verify result must be true")
 }
 
-func TestFactorProofVerifyFail(t *testing.T) {
+func TestFactorProofVerifyFail1(t *testing.T) {
 	facSetUp(t)
 	badN := new(big.Int).Mul(publicKey.N, big.NewInt(3))
 	proof := privateKey.FactorProof(auxPrime.N, s, tt)
 	res, err := proof.FactorVerify(badN, auxPrime.N, s, tt)
+	assert.Error(t, err)
+	assert.False(t, res, "proof verify result must be false")
+}
+
+func TestFactorProofVerifyFail2(t *testing.T) {
+	facSetUp(t)
+	proof := privateKey.FactorProof(auxPrime.N, s, tt)
+	proof.V = nil
+	res, err := proof.FactorVerify(publicKey.N, auxPrime.N, s, tt)
+	assert.Error(t, err)
+	assert.False(t, res, "proof verify result must be false")
+}
+
+func TestFactorProofVerifyFail3(t *testing.T) {
+	facSetUp(t)
+	proof := privateKey.FactorProof(auxPrime.N, s, tt)
+	res, err := proof.FactorVerify(publicKey.N, auxPrime.N, s, nil)
 	assert.Error(t, err)
 	assert.False(t, res, "proof verify result must be false")
 }

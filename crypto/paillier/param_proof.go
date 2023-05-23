@@ -40,6 +40,10 @@ func (privateKey *PrivateKey) ParamProof(s, t, lambda *big.Int) *ParamProof {
 }
 
 func (pf ParamProof) ParamVerify(N, s, t *big.Int) bool {
+	if common.AnyIsNil(N, s, t) || common.AnyIsNil(pf.A[:]...) || common.AnyIsNil(pf.Z[:]...) {
+		return false
+	}
+
 	e := ParamChallenge(N, s, t, pf.A)
 	modN := common.ModInt(N)
 	for i := 0; i < PARAM_M; i++ {

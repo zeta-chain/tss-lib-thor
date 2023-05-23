@@ -121,3 +121,13 @@ func UnmarshalSigned(b []byte) *big.Int {
 	}
 	return i
 }
+
+// Returns true when at least one of the arguments is nil
+func AnyIsNil(is ...*big.Int) bool {
+	for _, i := range is {
+		if i == nil {
+			return true
+		}
+	}
+	return false
+}
