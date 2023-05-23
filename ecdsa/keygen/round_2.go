@@ -41,6 +41,7 @@ func (round *round2) Start() *tss.Error {
 	stMap := make(map[string]struct{}, len(round.temp.kgRound1Messages)*2)
 	dlnProof1FailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
 	dlnProof2FailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
+	paramProofFailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
 	wg := new(sync.WaitGroup)
 	for j, msg := range round.temp.kgRound1Messages {
 		r1msg := msg.Content().(*KGRound1Message)
@@ -81,7 +82,7 @@ func (round *round2) Start() *tss.Error {
 		}
 		stMap[sJHex], stMap[tJHex] = struct{}{}, struct{}{}
 
-		wg.Add(2)
+		wg.Add(3)
 		_j := j
 		_msg := msg
 
@@ -97,11 +98,22 @@ func (round *round2) Start() *tss.Error {
 			}
 			wg.Done()
 		})
+		verifier.VerifyParamProof(r1msg, paillierPKj.N, Sj, Tj, func(isValid bool) {
+			if !isValid {
+				paramProofFailCulprits[_j] = _msg.GetFrom()
+			}
+			wg.Done()
+		})
 	}
 	wg.Wait()
 	for _, culprit := range append(dlnProof1FailCulprits, dlnProof2FailCulprits...) {
 		if culprit != nil {
 			return round.WrapError(errors.New("dln proof verification failed"), culprit)
+		}
+	}
+	for _, culprit := range paramProofFailCulprits {
+		if culprit != nil {
+			return round.WrapError(errors.New("param proof verification failed"), culprit)
 		}
 	}
 	// save NTilde_j, h1_j, h2_j, ...
