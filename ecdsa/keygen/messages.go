@@ -50,12 +50,12 @@ func NewKGRound1Message(
 		H1:         h1I.Bytes(),
 		H2:         h2I.Bytes(),
 		Dlnproof_1: &KGRound1Message_DLNProof{
-			Alpha:		common.BigIntsToBytes(dlnProof1.Alpha[:]),
-			T:			common.BigIntsToBytes(dlnProof1.T[:]),
+			Alpha: common.BigIntsToBytes(dlnProof1.Alpha[:]),
+			T:     common.BigIntsToBytes(dlnProof1.T[:]),
 		},
 		Dlnproof_2: &KGRound1Message_DLNProof{
-			Alpha:		common.BigIntsToBytes(dlnProof2.Alpha[:]),
-			T:			common.BigIntsToBytes(dlnProof2.T[:]),
+			Alpha: common.BigIntsToBytes(dlnProof2.Alpha[:]),
+			T:     common.BigIntsToBytes(dlnProof2.T[:]),
 		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)

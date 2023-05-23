@@ -96,13 +96,13 @@ func NewDGRound2Message1(
 		NTilde:        NTildei.Bytes(),
 		H1:            H1i.Bytes(),
 		H2:            H2i.Bytes(),
-		Dlnproof_1:    &DGRound2Message1_DLNProof{
-			Alpha:		common.BigIntsToBytes(dlnProof1.Alpha[:]),
-			T:			common.BigIntsToBytes(dlnProof1.T[:]),
+		Dlnproof_1: &DGRound2Message1_DLNProof{
+			Alpha: common.BigIntsToBytes(dlnProof1.Alpha[:]),
+			T:     common.BigIntsToBytes(dlnProof1.T[:]),
 		},
-		Dlnproof_2:    &DGRound2Message1_DLNProof{
-			Alpha:		common.BigIntsToBytes(dlnProof2.Alpha[:]),
-			T:			common.BigIntsToBytes(dlnProof2.T[:]),
+		Dlnproof_2: &DGRound2Message1_DLNProof{
+			Alpha: common.BigIntsToBytes(dlnProof2.Alpha[:]),
+			T:     common.BigIntsToBytes(dlnProof2.T[:]),
 		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)

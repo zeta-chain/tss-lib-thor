@@ -42,8 +42,8 @@ func BenchmarkDlnVerifier_VerifyProof1(b *testing.B) {
 	preParams, alpha, t := prepareProofB(b)
 	message := &KGRound1Message{
 		Dlnproof_1: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		t,
+			Alpha: alpha,
+			T:     t,
 		},
 	}
 
@@ -63,8 +63,8 @@ func BenchmarkDlnVerifier_VerifyProof2(b *testing.B) {
 	preParams, alpha, t := prepareProofB(b)
 	message := &KGRound1Message{
 		Dlnproof_2: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		t,
+			Alpha: alpha,
+			T:     t,
 		},
 	}
 
@@ -84,8 +84,8 @@ func TestVerifyDLNProof1_Success(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_1: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		tt,
+			Alpha: alpha,
+			T:     tt,
 		},
 	}
 
@@ -107,8 +107,8 @@ func TestVerifyDLNProof1_MalformedMessage1(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_1: &KGRound1Message_DLNProof{
-			Alpha:	alpha[:len(alpha)-1], // truncate
-			T:		tt,
+			Alpha: alpha[:len(alpha)-1], // truncate
+			T:     tt,
 		},
 	}
 
@@ -130,8 +130,8 @@ func TestVerifyDLNProof1_MalformedMessage2(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_1: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		tt[:len(tt)-1], // truncate
+			Alpha: alpha,
+			T:     tt[:len(tt)-1], // truncate
 		},
 	}
 
@@ -153,8 +153,8 @@ func TestVerifyDLNProof1_IncorrectProof(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_1: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		tt,
+			Alpha: alpha,
+			T:     tt,
 		},
 	}
 
@@ -177,8 +177,8 @@ func TestVerifyDLNProof2_Success(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_2: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		tt,
+			Alpha: alpha,
+			T:     tt,
 		},
 	}
 
@@ -200,8 +200,8 @@ func TestVerifyDLNProof2_MalformedMessage1(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_2: &KGRound1Message_DLNProof{
-			Alpha:	alpha[:len(alpha)-1], // truncate
-			T:		tt,
+			Alpha: alpha[:len(alpha)-1], // truncate
+			T:     tt,
 		},
 	}
 
@@ -223,8 +223,8 @@ func TestVerifyDLNProof2_MalformedMessage2(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_2: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		tt[:len(tt)-1], // truncate
+			Alpha: alpha,
+			T:     tt[:len(tt)-1], // truncate
 		},
 	}
 
@@ -246,8 +246,8 @@ func TestVerifyDLNProof2_IncorrectProof(t *testing.T) {
 	preParams, alpha, tt := prepareProofT(t)
 	message := &KGRound1Message{
 		Dlnproof_2: &KGRound1Message_DLNProof{
-			Alpha:	alpha,
-			T:		tt,
+			Alpha: alpha,
+			T:     tt,
 		},
 	}
 

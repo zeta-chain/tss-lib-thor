@@ -19,7 +19,6 @@ var (
 	two  = big.NewInt(2)
 )
 
-
 func Eq(x, y *big.Int) bool {
 	return x.Cmp(y) == 0
 }
