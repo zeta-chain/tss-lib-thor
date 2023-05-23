@@ -49,6 +49,18 @@ func GetRandomPositiveInt(lessThan *big.Int) *big.Int {
 	return try
 }
 
+// Sample an integer in range (-limit, limit)
+func GetRandomInt(limit *big.Int) *big.Int {
+	// get the absolute value
+	i := GetRandomPositiveInt(limit)
+	// get one bit for the sign; 1 means negative, 0 means positive
+	negative := MustGetRandomInt(1)
+	if Eq(negative, big.NewInt(1)) {
+		i.Neg(i)
+	}
+	return i
+}
+
 func GetRandomPrimeInt(bits int) *big.Int {
 	if bits <= 0 {
 		return nil
@@ -99,4 +111,19 @@ func GetRandomGeneratorOfTheQuadraticResidue(n *big.Int) *big.Int {
 	f := GetRandomPositiveRelativelyPrimeInt(n)
 	fSq := new(big.Int).Mul(f, f)
 	return fSq.Mod(fSq, n)
+}
+
+// Sample an integer in range (-2^power, 2^power)
+func GetRandomIntIn2PowerRange(power uint) *big.Int {
+	limit := big.NewInt(1)
+	limit.Lsh(limit, power)
+	return GetRandomInt(limit)
+}
+
+// Sample an integer in range (-2^power * multiplier, 2^power * multiplier)
+func GetRandomIntIn2PowerMulRange(power uint, multiplier *big.Int) *big.Int {
+	limit := big.NewInt(1)
+	limit.Lsh(limit, power)
+	limit.Mul(limit, multiplier)
+	return GetRandomInt(limit)
 }
