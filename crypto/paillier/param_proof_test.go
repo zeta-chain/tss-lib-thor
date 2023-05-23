@@ -2,7 +2,6 @@ package paillier_test
 
 import (
 	"context"
-	"encoding/hex"
 	"math/big"
 	"testing"
 	"time"
@@ -37,8 +36,8 @@ func prmSetUp(t *testing.T) {
 }
 
 func TestBytesToBits(t *testing.T) {
-	bs, err := hex.DecodeString("0102030405060708090a0b0c0d0e0f")
-	assert.NoError(t, err)
+	bs, ok := new(big.Int).SetString("0f0e0d0c0b0a090807060504030201", 16)
+	assert.True(t, ok)
 	b := BytesToBits(bs)
 	assert.Equal(t, 80, len(b))
 	assert.Equal(t, byte(1), b[0], "b[0] should be 1")

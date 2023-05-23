@@ -58,14 +58,14 @@ func (pf ParamProof) ParamVerify(N, s, t *big.Int) bool {
 
 func ParamChallenge(N, s, t *big.Int, A [PARAM_M]*big.Int) [PARAM_M]byte {
 	aHash := common.SHA512_256i(A[:]...)
-	eBytes := common.SHA512_256i(N, s, t, aHash).Bytes()
-	return BytesToBits(eBytes)
+	e := common.SHA512_256i(N, s, t, aHash)
+	return BytesToBits(e)
 }
 
-func BytesToBits(bs []byte) [PARAM_M]byte {
+func BytesToBits(b *big.Int) [PARAM_M]byte {
 	var e [PARAM_M]byte
 	for i := 0; i < PARAM_M; i++ {
-		e[i] = (bs[i/8] >> uint(i%8)) & 1
+		e[i] = byte(b.Bit(i))
 	}
 	return e
 }
