@@ -95,6 +95,16 @@ func (round *round1) Start() *tss.Error {
 	dlnProof1 := dlnproof.NewDLNProof(h1i, h2i, alpha, p, q, NTildei)
 	dlnProof2 := dlnproof.NewDLNProof(h2i, h1i, beta, p, q, NTildei)
 
+	N := preParams.PaillierSK.PublicKey.N
+	modN := common.ModInt(N)
+
+	round.temp.Lambda = common.GetRandomPositiveInt(preParams.PaillierSK.PhiN)
+	r := common.GetRandomPositiveRelativelyPrimeInt(N)
+	round.temp.Ti = modN.Mul(r, r)
+	round.temp.Si = modN.Exp(round.temp.Ti, round.temp.Lambda)
+
+	paramProof := preParams.PaillierSK.ParamProof(round.temp.Si, round.temp.Ti, round.temp.Lambda)
+
 	// for this P: SAVE
 	// - shareID
 	// and keep in temporary storage:
@@ -112,7 +122,18 @@ func (round *round1) Start() *tss.Error {
 	// BROADCAST commitments, paillier pk + proof; round 1 message
 	{
 		msg, err := NewKGRound1Message(
-			round.PartyID(), cmt.C, &preParams.PaillierSK.PublicKey, preParams.NTildei, preParams.H1i, preParams.H2i, dlnProof1, dlnProof2)
+			round.PartyID(),
+			cmt.C,
+			&preParams.PaillierSK.PublicKey,
+			preParams.NTildei,
+			preParams.H1i,
+			preParams.H2i,
+			dlnProof1,
+			dlnProof2,
+			round.temp.Si,
+			round.temp.Ti,
+			paramProof,
+		)
 		if err != nil {
 			return round.WrapError(err, Pi)
 		}

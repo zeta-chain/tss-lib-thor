@@ -16,6 +16,10 @@ message KGRound1Message {
         repeated bytes alpha = 1;
         repeated bytes t = 2;
     }
+    message ParamProof {
+        repeated bytes a = 1;
+        repeated bytes z = 2;
+    }
     reserved 6, 7;
     bytes commitment = 1;
     bytes paillier_n = 2;
@@ -24,6 +28,9 @@ message KGRound1Message {
     bytes h2 = 5;
     DLNProof dlnproof_1 = 8;
     DLNProof dlnproof_2 = 9;
+    bytes s = 10;
+    bytes t = 11;
+    ParamProof prmproof = 12;
 }
 
 /*
