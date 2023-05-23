@@ -54,3 +54,11 @@ func TestParamProofVerify(t *testing.T) {
 	res := proof.ParamVerify(publicKey.N, s, tt)
 	assert.True(t, res, "proof verify result must be true")
 }
+
+func TestParamProofVerifyFail(t *testing.T) {
+	prmSetUp(t)
+	proof := privateKey.ParamProof(s, tt, lambda)
+	proof.A[42] = nil
+	res := proof.ParamVerify(publicKey.N, s, tt)
+	assert.False(t, res, "proof verify result must be false")
+}
