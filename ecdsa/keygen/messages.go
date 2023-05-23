@@ -59,11 +59,11 @@ func NewKGRound1Message(
 			Alpha: common.BigIntsToBytes(dlnProof2.Alpha[:]),
 			T:     common.BigIntsToBytes(dlnProof2.T[:]),
 		},
-		S:		   si.Bytes(),
-		T:		   ti.Bytes(),
+		S: si.Bytes(),
+		T: ti.Bytes(),
 		Prmproof: &KGRound1Message_ParamProof{
-			A:	common.BigIntsToBytes(paramProof.A[:]),
-			Z:	common.BigIntsToBytes(paramProof.Z[:]),
+			A: common.BigIntsToBytes(paramProof.A[:]),
+			Z: common.BigIntsToBytes(paramProof.Z[:]),
 		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)
@@ -127,7 +127,6 @@ func (m *KGRound1Message) UnmarshalParamProof() (*paillier.ParamProof, error) {
 	return paillier.UnmarshalParamProof(p.GetA(), p.GetZ())
 }
 
-
 func (p *KGRound1Message_DLNProof) ValidateBasic() bool {
 	return p != nil &&
 		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
@@ -171,7 +170,7 @@ func NewKGRound2Message1(
 		facProof = nil
 	}
 	content := &KGRound2Message1{
-		Share: share.Share.Bytes(),
+		Share:    share.Share.Bytes(),
 		Facproof: facProof,
 	}
 	msg := tss.NewMessageWrapper(meta, content)

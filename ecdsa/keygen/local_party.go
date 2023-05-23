@@ -51,8 +51,8 @@ type (
 		vs            vss.Vs
 		shares        vss.Shares
 		deCommitPolyG cmt.HashDeCommitment
-		Sj			  []*big.Int
-		Tj 			  []*big.Int
+		Sj            []*big.Int
+		Tj            []*big.Int
 		Si            *big.Int
 		Ti            *big.Int
 		Lambda        *big.Int

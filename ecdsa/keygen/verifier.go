@@ -12,7 +12,6 @@ import (
 
 	"github.com/bnb-chain/tss-lib/crypto/dlnproof"
 	"github.com/bnb-chain/tss-lib/crypto/paillier"
-
 )
 
 type ProofVerifier struct {

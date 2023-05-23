@@ -147,7 +147,7 @@ func (round *round2) Start() *tss.Error {
 		}
 		Sj, Tj, N := round.temp.Sj[j], round.temp.Tj[j], round.save.PaillierPKs[j].N
 		facProof := round.save.LocalPreParams.PaillierSK.FactorProof(N, Sj, Tj)
-		
+
 		r2msg1 := NewKGRound2Message1(Pj, round.PartyID(), shares[j], facProof)
 		round.out <- r2msg1
 	}
