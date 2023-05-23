@@ -154,3 +154,26 @@ func TestGenerateXs(t *testing.T) {
 		assert.True(t, common.IsNumberInMultiplicativeGroup(N, xi))
 	}
 }
+
+func TestGetPQGeneric(t *testing.T) {
+	p, q := privateKey.GetPQ()
+
+	n := new(big.Int).Mul(p, q)
+	assert.True(t, p.ProbablyPrime(5), "P should be prime") // 5 rounds of Miller-Rabin
+	assert.True(t, q.ProbablyPrime(5), "Q should be prime") // 5 rounds of Miller-Rabin
+	assert.Equal(t, 0, publicKey.N.Cmp(n), "P*Q should equal N")
+}
+
+func TestGetPQSpecific(t *testing.T) {
+	p := big.NewInt(97)
+	q := big.NewInt(89)
+	N := new(big.Int).Mul(p, q)
+	phiN := big.NewInt(8448)
+
+	pKey := &PublicKey{N: N}
+	sKey := &PrivateKey{PublicKey: *pKey, LambdaN: nil, PhiN: phiN}
+	p2, q2 := sKey.GetPQ()
+
+	assert.Equal(t, 0, p2.Cmp(p), "P should equal 97")
+	assert.Equal(t, 0, q2.Cmp(q), "Q should equal 89")
+}

@@ -290,3 +290,21 @@ func GenerateXs(m int, k, N *big.Int, ecdsaPub *crypto2.ECPoint) []*big.Int {
 	}
 	return ret
 }
+
+// Return the two factors of the public key modulus N
+func (privateKey *PrivateKey) GetPQ() (*big.Int, *big.Int) {
+	n := privateKey.PublicKey.N
+	phiN := privateKey.PhiN
+
+	m := new(big.Int).Sub(n, phiN)
+	m.Add(m, big.NewInt(1))
+	m.Div(m, big.NewInt(2))
+
+	m2 := new(big.Int).Mul(m, m)
+	m2subN := new(big.Int).Sub(m2, n)
+	s := new(big.Int).Sqrt(m2subN)
+
+	p := new(big.Int).Add(m, s)
+	q := new(big.Int).Sub(m, s)
+	return p, q
+}
