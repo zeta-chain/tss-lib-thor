@@ -21,13 +21,18 @@ message DGRound1Message {
  * The Round 2 data is broadcast to other peers of the New Committee in this message.
  */
 message DGRound2Message1 {
+    message DLNProof {
+        repeated bytes alpha = 1;
+        repeated bytes t = 2;
+    }
+    reserved 6, 7;
     bytes paillier_n = 1;
     repeated bytes paillier_proof = 2;
     bytes n_tilde = 3;
     bytes h1 = 4;
     bytes h2 = 5;
-    repeated bytes dlnproof_1 = 6;
-    repeated bytes dlnproof_2 = 7;
+    DLNProof dlnproof_1 = 8;
+    DLNProof dlnproof_2 = 9;
 }
 
 /*

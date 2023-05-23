@@ -43,22 +43,20 @@ func NewKGRound1Message(
 		From:        from,
 		IsBroadcast: true,
 	}
-	dlnProof1Bz, err := dlnProof1.Serialize()
-	if err != nil {
-		return nil, err
-	}
-	dlnProof2Bz, err := dlnProof2.Serialize()
-	if err != nil {
-		return nil, err
-	}
 	content := &KGRound1Message{
 		Commitment: ct.Bytes(),
 		PaillierN:  paillierPK.N.Bytes(),
 		NTilde:     nTildeI.Bytes(),
 		H1:         h1I.Bytes(),
 		H2:         h2I.Bytes(),
-		Dlnproof_1: dlnProof1Bz,
-		Dlnproof_2: dlnProof2Bz,
+		Dlnproof_1: &KGRound1Message_DLNProof{
+			Alpha:		common.BigIntsToBytes(dlnProof1.Alpha[:]),
+			T:			common.BigIntsToBytes(dlnProof1.T[:]),
+		},
+		Dlnproof_2: &KGRound1Message_DLNProof{
+			Alpha:		common.BigIntsToBytes(dlnProof2.Alpha[:]),
+			T:			common.BigIntsToBytes(dlnProof2.T[:]),
+		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg), nil
@@ -71,9 +69,8 @@ func (m *KGRound1Message) ValidateBasic() bool {
 		common.NonEmptyBytes(m.GetNTilde()) &&
 		common.NonEmptyBytes(m.GetH1()) &&
 		common.NonEmptyBytes(m.GetH2()) &&
-		// expected len of dln proof = sizeof(int64) + len(alpha) + len(t)
-		common.NonEmptyMultiBytes(m.GetDlnproof_1(), 2+(dlnproof.Iterations*2)) &&
-		common.NonEmptyMultiBytes(m.GetDlnproof_2(), 2+(dlnproof.Iterations*2))
+		m.GetDlnproof_1().ValidateBasic() &&
+		m.GetDlnproof_2().ValidateBasic()
 }
 
 func (m *KGRound1Message) UnmarshalCommitment() *big.Int {
@@ -97,11 +94,19 @@ func (m *KGRound1Message) UnmarshalH2() *big.Int {
 }
 
 func (m *KGRound1Message) UnmarshalDLNProof1() (*dlnproof.Proof, error) {
-	return dlnproof.UnmarshalDLNProof(m.GetDlnproof_1())
+	p := m.GetDlnproof_1()
+	return dlnproof.UnmarshalDLNProof(p.GetAlpha(), p.GetT())
 }
 
 func (m *KGRound1Message) UnmarshalDLNProof2() (*dlnproof.Proof, error) {
-	return dlnproof.UnmarshalDLNProof(m.GetDlnproof_2())
+	p := m.GetDlnproof_2()
+	return dlnproof.UnmarshalDLNProof(p.GetAlpha(), p.GetT())
+}
+
+func (p *KGRound1Message_DLNProof) ValidateBasic() bool {
+	return p != nil &&
+		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
+		common.NonEmptyMultiBytes(p.GetT(), dlnproof.Iterations)
 }
 
 // ----- //

@@ -90,22 +90,20 @@ func NewDGRound2Message1(
 		IsToOldCommittee: false,
 	}
 	paiPfBzs := common.BigIntsToBytes(paillierPf[:])
-	dlnProof1Bz, err := dlnProof1.Serialize()
-	if err != nil {
-		return nil, err
-	}
-	dlnProof2Bz, err := dlnProof2.Serialize()
-	if err != nil {
-		return nil, err
-	}
 	content := &DGRound2Message1{
 		PaillierN:     paillierPK.N.Bytes(),
 		PaillierProof: paiPfBzs,
 		NTilde:        NTildei.Bytes(),
 		H1:            H1i.Bytes(),
 		H2:            H2i.Bytes(),
-		Dlnproof_1:    dlnProof1Bz,
-		Dlnproof_2:    dlnProof2Bz,
+		Dlnproof_1:    &DGRound2Message1_DLNProof{
+			Alpha:		common.BigIntsToBytes(dlnProof1.Alpha[:]),
+			T:			common.BigIntsToBytes(dlnProof1.T[:]),
+		},
+		Dlnproof_2:    &DGRound2Message1_DLNProof{
+			Alpha:		common.BigIntsToBytes(dlnProof2.Alpha[:]),
+			T:			common.BigIntsToBytes(dlnProof2.T[:]),
+		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg), nil
@@ -118,9 +116,8 @@ func (m *DGRound2Message1) ValidateBasic() bool {
 		common.NonEmptyBytes(m.NTilde) &&
 		common.NonEmptyBytes(m.H1) &&
 		common.NonEmptyBytes(m.H2) &&
-		// expected len of dln proof = sizeof(int64) + len(alpha) + len(t)
-		common.NonEmptyMultiBytes(m.GetDlnproof_1(), 2+(dlnproof.Iterations*2)) &&
-		common.NonEmptyMultiBytes(m.GetDlnproof_2(), 2+(dlnproof.Iterations*2))
+		m.GetDlnproof_1().ValidateBasic() &&
+		m.GetDlnproof_2().ValidateBasic()
 }
 
 func (m *DGRound2Message1) UnmarshalPaillierPK() *paillier.PublicKey {
@@ -149,11 +146,19 @@ func (m *DGRound2Message1) UnmarshalPaillierProof() paillier.Proof {
 }
 
 func (m *DGRound2Message1) UnmarshalDLNProof1() (*dlnproof.Proof, error) {
-	return dlnproof.UnmarshalDLNProof(m.GetDlnproof_1())
+	p := m.GetDlnproof_1()
+	return dlnproof.UnmarshalDLNProof(p.GetAlpha(), p.GetT())
 }
 
 func (m *DGRound2Message1) UnmarshalDLNProof2() (*dlnproof.Proof, error) {
-	return dlnproof.UnmarshalDLNProof(m.GetDlnproof_2())
+	p := m.GetDlnproof_2()
+	return dlnproof.UnmarshalDLNProof(p.GetAlpha(), p.GetT())
+}
+
+func (p *DGRound2Message1_DLNProof) ValidateBasic() bool {
+	return p != nil &&
+		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
+		common.NonEmptyMultiBytes(p.GetT(), dlnproof.Iterations)
 }
 
 // ----- //
