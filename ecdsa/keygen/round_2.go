@@ -140,12 +140,15 @@ func (round *round2) Start() *tss.Error {
 	// 5. p2p send share ij to Pj
 	shares := round.temp.shares
 	for j, Pj := range round.Parties().IDs() {
-		r2msg1 := NewKGRound2Message1(Pj, round.PartyID(), shares[j])
 		// do not send to this Pj, but store for round 3
 		if j == i {
-			round.temp.kgRound2Message1s[j] = r2msg1
+			round.temp.kgRound2Message1s[j] = NewKGRound2Message1(Pj, round.PartyID(), shares[j], nil)
 			continue
 		}
+		Sj, Tj, N := round.temp.Sj[j], round.temp.Tj[j], round.save.PaillierPKs[j].N
+		facProof := round.save.LocalPreParams.PaillierSK.FactorProof(N, Sj, Tj)
+		
+		r2msg1 := NewKGRound2Message1(Pj, round.PartyID(), shares[j], facProof)
 		round.out <- r2msg1
 	}
 

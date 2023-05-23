@@ -145,14 +145,34 @@ func (p *KGRound1Message_ParamProof) ValidateBasic() bool {
 func NewKGRound2Message1(
 	to, from *tss.PartyID,
 	share *vss.Share,
+	proof *paillier.FactorProof,
 ) tss.ParsedMessage {
 	meta := tss.MessageRouting{
 		From:        from,
 		To:          []*tss.PartyID{to},
 		IsBroadcast: false,
 	}
+	var facProof *KGRound2Message1_FactorProof
+	if proof != nil {
+		facProof = &KGRound2Message1_FactorProof{
+			P:     common.MarshalSigned(proof.P),
+			Q:     common.MarshalSigned(proof.Q),
+			A:     common.MarshalSigned(proof.A),
+			B:     common.MarshalSigned(proof.B),
+			T:     common.MarshalSigned(proof.T),
+			Sigma: common.MarshalSigned(proof.Sigma),
+			Z1:    common.MarshalSigned(proof.Z1),
+			Z2:    common.MarshalSigned(proof.Z2),
+			W1:    common.MarshalSigned(proof.W1),
+			W2:    common.MarshalSigned(proof.W2),
+			V:     common.MarshalSigned(proof.V),
+		}
+	} else {
+		facProof = nil
+	}
 	content := &KGRound2Message1{
 		Share: share.Share.Bytes(),
+		Facproof: facProof,
 	}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg)
@@ -160,11 +180,44 @@ func NewKGRound2Message1(
 
 func (m *KGRound2Message1) ValidateBasic() bool {
 	return m != nil &&
-		common.NonEmptyBytes(m.GetShare())
+		common.NonEmptyBytes(m.GetShare()) &&
+		m.GetFacproof().ValidateBasic()
 }
 
 func (m *KGRound2Message1) UnmarshalShare() *big.Int {
 	return new(big.Int).SetBytes(m.Share)
+}
+
+func (m *KGRound2Message1) UnmarshalFactorProof() *paillier.FactorProof {
+	proof := m.GetFacproof()
+	return &paillier.FactorProof{
+		P:     common.UnmarshalSigned(proof.P),
+		Q:     common.UnmarshalSigned(proof.Q),
+		A:     common.UnmarshalSigned(proof.A),
+		B:     common.UnmarshalSigned(proof.B),
+		T:     common.UnmarshalSigned(proof.T),
+		Sigma: common.UnmarshalSigned(proof.Sigma),
+		Z1:    common.UnmarshalSigned(proof.Z1),
+		Z2:    common.UnmarshalSigned(proof.Z2),
+		W1:    common.UnmarshalSigned(proof.W1),
+		W2:    common.UnmarshalSigned(proof.W2),
+		V:     common.UnmarshalSigned(proof.V),
+	}
+}
+
+func (proof *KGRound2Message1_FactorProof) ValidateBasic() bool {
+	return proof != nil &&
+		common.NonEmptyBytes(proof.GetP()) &&
+		common.NonEmptyBytes(proof.GetQ()) &&
+		common.NonEmptyBytes(proof.GetA()) &&
+		common.NonEmptyBytes(proof.GetB()) &&
+		common.NonEmptyBytes(proof.GetT()) &&
+		common.NonEmptyBytes(proof.GetSigma()) &&
+		common.NonEmptyBytes(proof.GetZ1()) &&
+		common.NonEmptyBytes(proof.GetZ2()) &&
+		common.NonEmptyBytes(proof.GetW1()) &&
+		common.NonEmptyBytes(proof.GetW2()) &&
+		common.NonEmptyBytes(proof.GetV())
 }
 
 // ----- //

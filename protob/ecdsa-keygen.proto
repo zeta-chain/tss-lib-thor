@@ -37,7 +37,21 @@ message KGRound1Message {
  * Represents a P2P message sent to each party during Round 2 of the ECDSA TSS keygen protocol.
  */
 message KGRound2Message1 {
+    message FactorProof {
+        bytes p = 1;
+        bytes q = 2;
+        bytes a = 3;
+        bytes b = 4;
+        bytes t = 5;
+        bytes sigma = 6;
+        bytes z1 = 7;
+        bytes z2 = 8;
+        bytes w1 = 9;
+        bytes w2 = 10;
+        bytes v = 11;
+    }
     bytes share = 1;
+    FactorProof facproof = 2;
 }
 
 /*
