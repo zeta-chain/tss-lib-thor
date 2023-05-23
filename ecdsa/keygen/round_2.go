@@ -38,16 +38,19 @@ func (round *round2) Start() *tss.Error {
 
 	// 6. verify dln proofs, store r1 message pieces, ensure uniqueness of h1j, h2j
 	h1H2Map := make(map[string]struct{}, len(round.temp.kgRound1Messages)*2)
+	stMap := make(map[string]struct{}, len(round.temp.kgRound1Messages)*2)
 	dlnProof1FailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
 	dlnProof2FailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
 	wg := new(sync.WaitGroup)
 	for j, msg := range round.temp.kgRound1Messages {
 		r1msg := msg.Content().(*KGRound1Message)
-		H1j, H2j, NTildej, paillierPKj :=
+		H1j, H2j, NTildej, paillierPKj, Sj, Tj :=
 			r1msg.UnmarshalH1(),
 			r1msg.UnmarshalH2(),
 			r1msg.UnmarshalNTilde(),
-			r1msg.UnmarshalPaillierPK()
+			r1msg.UnmarshalPaillierPK(),
+			r1msg.UnmarshalS(),
+			r1msg.UnmarshalT()
 		if paillierPKj.N.BitLen() != paillierBitsLen {
 			return round.WrapError(errors.New("got paillier modulus with insufficient bits for this party"), msg.GetFrom())
 		}
@@ -65,6 +68,18 @@ func (round *round2) Start() *tss.Error {
 			return round.WrapError(errors.New("this h2j was already used by another party"), msg.GetFrom())
 		}
 		h1H2Map[h1JHex], h1H2Map[h2JHex] = struct{}{}, struct{}{}
+
+		if Sj.Cmp(Tj) == 0 {
+			return round.WrapError(errors.New("sj and tj were equal for this party"), msg.GetFrom())
+		}
+		sJHex, tJHex := hex.EncodeToString(Sj.Bytes()), hex.EncodeToString(Tj.Bytes())
+		if _, found := stMap[sJHex]; found {
+			return round.WrapError(errors.New("this sj was already used by another party"), msg.GetFrom())
+		}
+		if _, found := stMap[tJHex]; found {
+			return round.WrapError(errors.New("this tj was already used by another party"), msg.GetFrom())
+		}
+		stMap[sJHex], stMap[tJHex] = struct{}{}, struct{}{}
 
 		wg.Add(2)
 		_j := j
@@ -95,16 +110,19 @@ func (round *round2) Start() *tss.Error {
 			continue
 		}
 		r1msg := msg.Content().(*KGRound1Message)
-		paillierPK, H1j, H2j, NTildej, KGC :=
+		paillierPK, H1j, H2j, NTildej, KGC, Sj, Tj :=
 			r1msg.UnmarshalPaillierPK(),
 			r1msg.UnmarshalH1(),
 			r1msg.UnmarshalH2(),
 			r1msg.UnmarshalNTilde(),
-			r1msg.UnmarshalCommitment()
+			r1msg.UnmarshalCommitment(),
+			r1msg.UnmarshalS(),
+			r1msg.UnmarshalT()
 		round.save.PaillierPKs[j] = paillierPK // used in round 4
 		round.save.NTildej[j] = NTildej
 		round.save.H1j[j], round.save.H2j[j] = H1j, H2j
 		round.temp.KGCs[j] = KGC
+		round.temp.Sj[j], round.temp.Tj[j] = Sj, Tj
 	}
 
 	// 5. p2p send share ij to Pj
