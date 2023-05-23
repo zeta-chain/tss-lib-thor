@@ -42,7 +42,7 @@ func (round *round4) Start() *tss.Error {
 		round.PartyID(),
 		round.Concurrency(),
 	)
-	dlnVerifier := keygen.NewDlnProofVerifier(round.Concurrency())
+	dlnVerifier := keygen.NewProofVerifier(round.Concurrency())
 
 	Pi := round.PartyID()
 	i := Pi.Index

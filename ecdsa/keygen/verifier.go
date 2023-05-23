@@ -18,9 +18,12 @@ type ProofVerifier struct {
 	semaphore chan interface{}
 }
 
-type message interface {
+type dlnMessage interface {
 	UnmarshalDLNProof1() (*dlnproof.Proof, error)
 	UnmarshalDLNProof2() (*dlnproof.Proof, error)
+}
+
+type paramMessage interface {
 	UnmarshalParamProof() (*paillier.ParamProof, error)
 }
 
@@ -37,7 +40,7 @@ func NewProofVerifier(concurrency int) *ProofVerifier {
 }
 
 func (dpv *ProofVerifier) VerifyDLNProof1(
-	m message,
+	m dlnMessage,
 	h1, h2, n *big.Int,
 	onDone func(bool),
 ) {
@@ -56,7 +59,7 @@ func (dpv *ProofVerifier) VerifyDLNProof1(
 }
 
 func (dpv *ProofVerifier) VerifyDLNProof2(
-	m message,
+	m dlnMessage,
 	h1, h2, n *big.Int,
 	onDone func(bool),
 ) {
@@ -75,7 +78,7 @@ func (dpv *ProofVerifier) VerifyDLNProof2(
 }
 
 func (pv *ProofVerifier) VerifyParamProof(
-	m message,
+	m paramMessage,
 	N, s, t *big.Int,
 	onDone func(bool),
 ) {
