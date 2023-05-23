@@ -42,7 +42,7 @@ func NewZKProof(x *big.Int, X *crypto.ECPoint) (*ZKProof, error) {
 	var c *big.Int
 	{
 		cHash := common.SHA512_256i(X.X(), X.Y(), g.X(), g.Y(), alpha.X(), alpha.Y())
-		c = common.RejectionSample(q, cHash)
+		c = common.LiterallyJustMod(q, cHash)
 	}
 	t := new(big.Int).Mul(c, x)
 	t = common.ModInt(q).Add(a, t)
@@ -63,7 +63,7 @@ func (pf *ZKProof) Verify(X *crypto.ECPoint) bool {
 	var c *big.Int
 	{
 		cHash := common.SHA512_256i(X.X(), X.Y(), g.X(), g.Y(), pf.Alpha.X(), pf.Alpha.Y())
-		c = common.RejectionSample(q, cHash)
+		c = common.LiterallyJustMod(q, cHash)
 	}
 	tG := crypto.ScalarBaseMult(ec, pf.T)
 	Xc := X.ScalarMult(c)
@@ -96,7 +96,7 @@ func NewZKVProof(V, R *crypto.ECPoint, s, l *big.Int) (*ZKVProof, error) {
 	var c *big.Int
 	{
 		cHash := common.SHA512_256i(V.X(), V.Y(), R.X(), R.Y(), g.X(), g.Y(), alpha.X(), alpha.Y())
-		c = common.RejectionSample(q, cHash)
+		c = common.LiterallyJustMod(q, cHash)
 	}
 	modQ := common.ModInt(q)
 	t := modQ.Add(a, new(big.Int).Mul(c, s))
@@ -117,7 +117,7 @@ func (pf *ZKVProof) Verify(V, R *crypto.ECPoint) bool {
 	var c *big.Int
 	{
 		cHash := common.SHA512_256i(V.X(), V.Y(), R.X(), R.Y(), g.X(), g.Y(), pf.Alpha.X(), pf.Alpha.Y())
-		c = common.RejectionSample(q, cHash)
+		c = common.LiterallyJustMod(q, cHash)
 	}
 	tR := R.ScalarMult(pf.T)
 	uG := crypto.ScalarBaseMult(ec, pf.U)

@@ -14,13 +14,13 @@ import (
 	"github.com/bnb-chain/tss-lib/common"
 )
 
-func TestRejectionSample(t *testing.T) {
+func TestLiterallyJustMod(t *testing.T) {
 	curveQ := common.GetRandomPrimeInt(256)
 	randomQ := common.MustGetRandomInt(64)
 	hash := common.SHA512_256iOne(big.NewInt(123))
-	rs1 := common.RejectionSample(curveQ, hash)
-	rs2 := common.RejectionSample(randomQ, hash)
-	rs3 := common.RejectionSample(common.MustGetRandomInt(64), hash)
+	rs1 := common.LiterallyJustMod(curveQ, hash)
+	rs2 := common.LiterallyJustMod(randomQ, hash)
+	rs3 := common.LiterallyJustMod(common.MustGetRandomInt(64), hash)
 	type args struct {
 		q     *big.Int
 		eHash *big.Int
@@ -50,7 +50,7 @@ func TestRejectionSample(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := common.RejectionSample(tt.args.q, tt.args.eHash)
+			got := common.LiterallyJustMod(tt.args.q, tt.args.eHash)
 			if !tt.notEqual && !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("RejectionSample() = %v, want %v", got, tt.want)
 			}

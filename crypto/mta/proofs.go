@@ -95,7 +95,7 @@ func ProveBobWC(ec elliptic.Curve, pk *paillier.PublicKey, NTilde, h1, h2, c1, c
 
 	// 11-12. e'
 	var e *big.Int
-	{ // must use RejectionSample
+	{ // must use LiterallyJustMod
 		var eHash *big.Int
 		// X is nil if called by ProveBob (Bob's proof "without check")
 		if X == nil {
@@ -103,7 +103,7 @@ func ProveBobWC(ec elliptic.Curve, pk *paillier.PublicKey, NTilde, h1, h2, c1, c
 		} else {
 			eHash = common.SHA512_256i(append(pk.AsInts(), X.X(), X.Y(), c1, c2, u.X(), u.Y(), z, zPrm, t, v, w)...)
 		}
-		e = common.RejectionSample(q, eHash)
+		e = common.LiterallyJustMod(q, eHash)
 	}
 
 	// 13.
@@ -215,7 +215,7 @@ func (pf *ProofBobWC) Verify(ec elliptic.Curve, pk *paillier.PublicKey, NTilde, 
 
 	// 1-2. e'
 	var e *big.Int
-	{ // must use RejectionSample
+	{ // must use LiterallyJustMod
 		var eHash *big.Int
 		// X is nil if called on a ProveBob (Bob's proof "without check")
 		if X == nil {
@@ -223,7 +223,7 @@ func (pf *ProofBobWC) Verify(ec elliptic.Curve, pk *paillier.PublicKey, NTilde, 
 		} else {
 			eHash = common.SHA512_256i(append(pk.AsInts(), X.X(), X.Y(), c1, c2, pf.U.X(), pf.U.Y(), pf.Z, pf.ZPrm, pf.T, pf.V, pf.W)...)
 		}
-		e = common.RejectionSample(q, eHash)
+		e = common.LiterallyJustMod(q, eHash)
 	}
 
 	var left, right *big.Int // for the following conditionals
