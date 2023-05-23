@@ -53,7 +53,7 @@ func NewPartyID(id, moniker string, key *big.Int) *PartyID {
 }
 
 func (pid PartyID) String() string {
-	return fmt.Sprintf("{%d,%s}", pid.Index, pid.Moniker)
+	return fmt.Sprintf("{%d,P[%s]}", pid.Index, pid.Moniker)
 }
 
 // ----- //
@@ -91,7 +91,7 @@ func GenerateTestPartyIDs(count int, startAt ...int) SortedPartyIDs {
 		ids = append(ids, &PartyID{
 			MessageWrapper_PartyID: &MessageWrapper_PartyID{
 				Id:      fmt.Sprintf("%d", i+1),
-				Moniker: fmt.Sprintf("P[%d]", i+1),
+				Moniker: fmt.Sprintf("%d", i+1),
 				Key:     new(big.Int).Sub(key, big.NewInt(int64(count)-int64(i))).Bytes(),
 			},
 			Index: i,
