@@ -11,30 +11,33 @@ import (
 	"math/big"
 
 	"github.com/bnb-chain/tss-lib/crypto/dlnproof"
+	"github.com/bnb-chain/tss-lib/crypto/paillier"
+
 )
 
-type DlnProofVerifier struct {
+type ProofVerifier struct {
 	semaphore chan interface{}
 }
 
 type message interface {
 	UnmarshalDLNProof1() (*dlnproof.Proof, error)
 	UnmarshalDLNProof2() (*dlnproof.Proof, error)
+	UnmarshalParamProof() (*paillier.ParamProof, error)
 }
 
-func NewDlnProofVerifier(concurrency int) *DlnProofVerifier {
+func NewProofVerifier(concurrency int) *ProofVerifier {
 	if concurrency == 0 {
 		panic(errors.New("NewDlnProofverifier: concurrency level must not be zero"))
 	}
 
 	semaphore := make(chan interface{}, concurrency)
 
-	return &DlnProofVerifier{
+	return &ProofVerifier{
 		semaphore: semaphore,
 	}
 }
 
-func (dpv *DlnProofVerifier) VerifyDLNProof1(
+func (dpv *ProofVerifier) VerifyDLNProof1(
 	m message,
 	h1, h2, n *big.Int,
 	onDone func(bool),
@@ -53,7 +56,7 @@ func (dpv *DlnProofVerifier) VerifyDLNProof1(
 	}()
 }
 
-func (dpv *DlnProofVerifier) VerifyDLNProof2(
+func (dpv *ProofVerifier) VerifyDLNProof2(
 	m message,
 	h1, h2, n *big.Int,
 	onDone func(bool),
@@ -69,5 +72,24 @@ func (dpv *DlnProofVerifier) VerifyDLNProof2(
 		}
 
 		onDone(dlnProof.Verify(h1, h2, n))
+	}()
+}
+
+func (pv *ProofVerifier) VerifyParamProof(
+	m message,
+	N, s, t *big.Int,
+	onDone func(bool),
+) {
+	pv.semaphore <- struct{}{}
+	go func() {
+		defer func() { <-pv.semaphore }()
+
+		prmProof, err := m.UnmarshalParamProof()
+		if err != nil {
+			onDone(false)
+			return
+		}
+
+		onDone(prmProof.ParamVerify(N, s, t))
 	}()
 }

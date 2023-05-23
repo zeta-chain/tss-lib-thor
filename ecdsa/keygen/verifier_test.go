@@ -47,7 +47,7 @@ func BenchmarkDlnVerifier_VerifyProof1(b *testing.B) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -68,7 +68,7 @@ func BenchmarkDlnVerifier_VerifyProof2(b *testing.B) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -89,7 +89,7 @@ func TestVerifyDLNProof1_Success(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
@@ -112,7 +112,7 @@ func TestVerifyDLNProof1_MalformedMessage1(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
@@ -135,7 +135,7 @@ func TestVerifyDLNProof1_MalformedMessage2(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
@@ -158,7 +158,7 @@ func TestVerifyDLNProof1_IncorrectProof(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
@@ -182,7 +182,7 @@ func TestVerifyDLNProof2_Success(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
@@ -205,7 +205,7 @@ func TestVerifyDLNProof2_MalformedMessage1(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
@@ -228,7 +228,7 @@ func TestVerifyDLNProof2_MalformedMessage2(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
@@ -251,7 +251,7 @@ func TestVerifyDLNProof2_IncorrectProof(t *testing.T) {
 		},
 	}
 
-	verifier := NewDlnProofVerifier(runtime.GOMAXPROCS(0))
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
 
 	resultChan := make(chan bool)
 
