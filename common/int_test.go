@@ -23,6 +23,11 @@ func TestUnmarshalSigned(t *testing.T) {
 	assert := assert.New(t)
 
 	assert.True(
+		big.NewInt(0).Cmp(common.UnmarshalSigned([]byte{})) == 0,
+		"empty array should unmarshal to 0",
+	)
+
+	assert.True(
 		big.NewInt(0).Cmp(common.UnmarshalSigned([]byte{0})) == 0,
 		"0x00 should unmarshal to 0",
 	)

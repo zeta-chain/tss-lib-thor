@@ -109,7 +109,7 @@ func MarshalSigned(i *big.Int) []byte {
 // (0x00 is positive, anything else is negative)
 // and the remaining bytes contain the value of the bigint.
 func UnmarshalSigned(b []byte) *big.Int {
-	if len(b) == 1 {
+	if len(b) <= 1 {
 		return big.NewInt(0)
 	}
 
