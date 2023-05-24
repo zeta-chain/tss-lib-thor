@@ -19,6 +19,58 @@ func TestMarshalSigned(t *testing.T) {
 	assert.Equal([]byte{1, 1}, common.MarshalSigned(big.NewInt(-1)), "-1 should marshal to 0x0101")
 }
 
+func TestInt(t *testing.T) {
+	assert := assert.New(t)
+	zero := big.NewInt(0)
+	one := big.NewInt(1)
+	two := big.NewInt(2)
+	three := big.NewInt(3)
+	four := big.NewInt(4)
+	five := big.NewInt(5)
+	six := big.NewInt(6)
+	seven := big.NewInt(7)
+
+	minusOne := big.NewInt(-1)
+	minusTwo := big.NewInt(-2)
+
+	assert.True(common.Eq(one, one))
+	assert.False(common.Eq(zero, one))
+	assert.False(common.Eq(minusOne, one))
+
+	assert.Equal(seven, common.AddMul(one, two, three))
+
+	mod7 := common.ModInt(seven)
+
+	assert.True(common.Eq(zero, mod7.Add(one, six)))
+	assert.Equal(two, mod7.Add(four, five))
+	assert.Equal(six, mod7.Add(zero, minusOne))
+
+	assert.Equal(two, mod7.Sub(five, three))
+	assert.Equal(six, mod7.Sub(one, two))
+
+	assert.Equal(two, mod7.Div(six, three))
+	assert.Equal(one, mod7.Div(five, three))
+	assert.Equal(two, mod7.Div(big.NewInt(81), big.NewInt(9)))
+	assert.Equal(three, mod7.Div(four, minusOne))
+
+	assert.Equal(six, mod7.Mul(two, three))
+	assert.Equal(two, mod7.Mul(three, three))
+	assert.Equal(three, mod7.Mul(big.NewInt(8), big.NewInt(10)))
+	assert.Equal(three, mod7.Mul(four, minusOne))
+
+	assert.Equal(two, mod7.Exp(three, two))
+	assert.Equal(four, mod7.Exp(two, two))
+	// 2 is the multiplicative inverse of 4 mod 7
+	assert.Equal(four, mod7.Exp(four, minusTwo))
+
+	// 4 * 3^2 = 36 == 1 mod 7
+	assert.Equal(one, mod7.MulExp(four, three, two))
+	// 2^2 * 3^2 = 36 == 1 mod 7
+	assert.Equal(one, mod7.ExpMulExp(two, two, three, two))
+
+	assert.Equal(two, mod7.ModInverse(four))
+}
+
 func TestUnmarshalSigned(t *testing.T) {
 	assert := assert.New(t)
 
