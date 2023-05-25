@@ -58,6 +58,15 @@ func (privateKey *PrivateKey) FactorProof(N, s, t *big.Int) *FactorProof {
 	B := modN.ExpMulExp(s, b, t, y)
 	T := modN.ExpMulExp(Q, a, t, r)
 
+	// Use standard Fiat-Shamir transform.
+	//
+	// Section 2.3.1 ZK-Module:
+	// Next, we present how to compile the protocols above using a random oracle via the Fiat-Shamir heuristic.
+	// Namely, to generate a proof, the Prover computes the challenge e by querying the oracle on a suitable input,
+	// which incorporates the theorem and the first message. Then, the Prover completes the transcript by computing
+	// the last message with respect to e and communicates the entire transcript as the proof. Later, the Verifier
+	// accepts the proof if it is a valid transcript of the underlying Σ-protocol and e is well-formed (verified by
+	// querying the oracle as the Prover should have).
 	e := FactorChallenge(N, s, t, N0, P, Q, A, B, T, sigma)
 
 	sigmaH := new(big.Int)
