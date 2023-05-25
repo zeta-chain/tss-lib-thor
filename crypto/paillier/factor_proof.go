@@ -38,8 +38,8 @@ func (privateKey *PrivateKey) FactorProof(N, s, t *big.Int) *FactorProof {
 	N0 := privateKey.PublicKey.N
 	p, q := privateKey.GetPQ()
 
-	a := common.GetRandomIntIn2PowerMulRange(PARAM_L + PARAM_E, new(big.Int).Sqrt(N0))
-	b := common.GetRandomIntIn2PowerMulRange(PARAM_L + PARAM_E, new(big.Int).Sqrt(N0))
+	a := common.GetRandomIntIn2PowerMulRange(PARAM_L+PARAM_E, new(big.Int).Sqrt(N0))
+	b := common.GetRandomIntIn2PowerMulRange(PARAM_L+PARAM_E, new(big.Int).Sqrt(N0))
 
 	mu := common.GetRandomIntIn2PowerMulRange(PARAM_L, N)
 	v := common.GetRandomIntIn2PowerMulRange(PARAM_L, N)

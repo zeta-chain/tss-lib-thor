@@ -293,24 +293,24 @@ func GenerateXs(m int, k, N *big.Int, ecdsaPub *crypto2.ECPoint) []*big.Int {
 
 // Return the two factors of the public key modulus N
 func (privateKey *PrivateKey) GetPQ() (*big.Int, *big.Int) {
-	n := privateKey.PublicKey.N       // pq
-	phiN := privateKey.PhiN           // (p-1)(q-1)
+	n := privateKey.PublicKey.N // pq
+	phiN := privateKey.PhiN     // (p-1)(q-1)
 
-	m := new(big.Int).Sub(n, phiN)    // pq - (p-1)(q-1) = p + q - 1
-	m.Add(m, big.NewInt(1))           // (p + q - 1) + 1 = p + q
-	m.Div(m, big.NewInt(2))           // (p + q) / 2
+	m := new(big.Int).Sub(n, phiN) // pq - (p-1)(q-1) = p + q - 1
+	m.Add(m, big.NewInt(1))        // (p + q - 1) + 1 = p + q
+	m.Div(m, big.NewInt(2))        // (p + q) / 2
 
-	m2 := new(big.Int).Mul(m, m)      // (p + q)^2 / 4
-	                                  // = (pp + qq + 2pq) / 4
+	m2 := new(big.Int).Mul(m, m) // (p + q)^2 / 4
+	// = (pp + qq + 2pq) / 4
 	m2subN := new(big.Int).Sub(m2, n) // ((p + q)^2 / 4) - n = ((p + q)^2 / 4) - pq
-									  // = (pp + qq + 2pq) / 4 - pq
-									  // = (pp + qq + 2pq - 4pq) / 4
-									  // = (pp - 2pq + qq - 2pq) / 4
-									  // = (p - q)^2 / 4
-	s := new(big.Int).Sqrt(m2subN)    // = sqrt((p - q)^2 / 4)
-									  // = |p - q| / 2
+	// = (pp + qq + 2pq) / 4 - pq
+	// = (pp + qq + 2pq - 4pq) / 4
+	// = (pp - 2pq + qq - 2pq) / 4
+	// = (p - q)^2 / 4
+	s := new(big.Int).Sqrt(m2subN) // = sqrt((p - q)^2 / 4)
+	// = |p - q| / 2
 
-	p := new(big.Int).Add(m, s)		  // (p + q) / 2 + |p - q| / 2, assuming p >= q
-	q := new(big.Int).Sub(m, s)       // (p + q) / 2 - |p - q| / 2, assuming p >= q
+	p := new(big.Int).Add(m, s) // (p + q) / 2 + |p - q| / 2, assuming p >= q
+	q := new(big.Int).Sub(m, s) // (p + q) / 2 - |p - q| / 2, assuming p >= q
 	return p, q
 }

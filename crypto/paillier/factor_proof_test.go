@@ -14,11 +14,11 @@ import (
 )
 
 var (
-	auxPrime *PublicKey
-	s        *big.Int
-	tt       *big.Int
+	auxPrime      *PublicKey
+	s             *big.Int
+	tt            *big.Int
 	badPrivateKey *PrivateKey
-	badPublicKey *PublicKey
+	badPublicKey  *PublicKey
 )
 
 func facSetUp(t *testing.T) {
