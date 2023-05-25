@@ -132,7 +132,7 @@ func FactorChallenge(N, s, t, pkN, P, Q, A, B, T, sigma *big.Int) *big.Int {
 
 	sign.Mod(sign, big.NewInt(2))
 
-	if sign.Cmp(big.NewInt(1)) == 0 {
+	if common.Eq(sign, big.NewInt(1)) {
 		h.Neg(h)
 	}
 
