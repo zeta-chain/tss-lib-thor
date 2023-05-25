@@ -123,6 +123,11 @@ func (pf FactorProof) FactorVerify(pkN, N, s, t *big.Int) (bool, error) {
 }
 
 func FactorChallenge(N, s, t, pkN, P, Q, A, B, T, sigma *big.Int) *big.Int {
+	// 2. Verifier replies with e <- +-q
+	// The q here is not the secret factor q, but rather the order of secp256k1,
+	// or in practical terms 2^256.
+	// common.SHA512_256i produces a 256-bit integer,
+	// to which we then add the sign.
 	h := common.SHA512_256i(N, s, t, pkN, P, Q, A, B, T, sigma)
 
 	// calculate the sign bit
