@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	PARAM_E = 512
-	PARAM_L = 256
+	PARAM_E = 512 // 2 * secp256k1 element bit length
+	PARAM_L = 256 // 1 * secp256k1 element bit length
 )
 
 type (
