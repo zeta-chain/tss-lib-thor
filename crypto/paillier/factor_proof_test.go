@@ -3,6 +3,7 @@ package paillier_test
 import (
 	"context"
 	"math/big"
+	"runtime"
 	"testing"
 	"time"
 
@@ -16,6 +17,8 @@ var (
 	auxPrime *PublicKey
 	s        *big.Int
 	tt       *big.Int
+	badPrivateKey *PrivateKey
+	badPublicKey *PublicKey
 )
 
 func facSetUp(t *testing.T) {
@@ -41,6 +44,44 @@ func facSetUp(t *testing.T) {
 	s = new(big.Int).Exp(tt, lambda, N)
 
 	assert.NoError(t, err2)
+
+	var err3 error
+	badPrivateKey, badPublicKey, err3 = GenerateBadKeyPair(ctx, testPaillierKeyLength)
+	assert.NoError(t, err3)
+}
+
+func GenerateBadKeyPair(ctx context.Context, modulusBitLen int) (privateKey *PrivateKey, publicKey *PublicKey, err error) {
+	var concurrency int
+	concurrency = runtime.NumCPU()
+	one := big.NewInt(1)
+
+	// KS-BTL-F-03: use two safe primes for P, Q
+	var P, Q, N *big.Int
+	{
+		tmp := new(big.Int)
+		sgpsLong, err := common.GetRandomSafePrimesConcurrent(ctx, modulusBitLen-128, 1, concurrency)
+		if err != nil {
+			return nil, nil, err
+		}
+		sgpsShort, err := common.GetRandomSafePrimesConcurrent(ctx, 128, 1, concurrency)
+		if err != nil {
+			return nil, nil, err
+		}
+		P, Q = sgpsLong[0].SafePrime(), sgpsShort[0].SafePrime()
+		N = tmp.Mul(P, Q)
+	}
+
+	// phiN = P-1 * Q-1
+	PMinus1, QMinus1 := new(big.Int).Sub(P, one), new(big.Int).Sub(Q, one)
+	phiN := new(big.Int).Mul(PMinus1, QMinus1)
+
+	// lambdaN = lcm(P−1, Q−1)
+	gcd := new(big.Int).GCD(nil, nil, PMinus1, QMinus1)
+	lambdaN := new(big.Int).Div(phiN, gcd)
+
+	publicKey = &PublicKey{N: N}
+	privateKey = &PrivateKey{PublicKey: *publicKey, LambdaN: lambdaN, PhiN: phiN}
+	return
 }
 
 func TestFactorProofVerify(t *testing.T) {
@@ -73,6 +114,14 @@ func TestFactorProofVerifyFail3(t *testing.T) {
 	facSetUp(t)
 	proof := privateKey.FactorProof(auxPrime.N, s, tt)
 	res, err := proof.FactorVerify(publicKey.N, auxPrime.N, s, nil)
+	assert.Error(t, err)
+	assert.False(t, res, "proof verify result must be false")
+}
+
+func TestFactorProofVerifyFailBadFactors(t *testing.T) {
+	facSetUp(t)
+	proof := badPrivateKey.FactorProof(auxPrime.N, s, tt)
+	res, err := proof.FactorVerify(badPublicKey.N, auxPrime.N, s, tt)
 	assert.Error(t, err)
 	assert.False(t, res, "proof verify result must be false")
 }
