@@ -167,6 +167,7 @@ func NewKGRound2Message1(
 			V:     common.MarshalSigned(proof.V),
 		}
 	} else {
+		// The proof is nil when creating the self-message in round 2.
 		facProof = nil
 	}
 	content := &KGRound2Message1{
