@@ -35,6 +35,14 @@ func prmSetUp(t *testing.T) {
 	s = new(big.Int).Exp(tt, lambda, N)
 }
 
+func badPrmSetup(t *testing.T) (badS, badT, badLambda *big.Int) {
+	badT = common.GetRandomPositiveInt(publicKey.N)
+	badS = common.GetRandomPositiveInt(publicKey.N)
+	badLambda = common.GetRandomPositiveInt(privateKey.PhiN)
+
+	return badT, badS, badLambda
+}
+
 func TestBytesToBits(t *testing.T) {
 	bs, ok := new(big.Int).SetString("0f0e0d0c0b0a090807060504030201", 16)
 	assert.True(t, ok)
@@ -57,8 +65,29 @@ func TestParamProofVerify(t *testing.T) {
 
 func TestParamProofVerifyFail(t *testing.T) {
 	prmSetUp(t)
-	proof := privateKey.ParamProof(s, tt, lambda)
-	proof.A[42] = nil
-	res := proof.ParamVerify(publicKey.N, s, tt)
-	assert.False(t, res, "proof verify result must be false")
+	badS, badT, badLambda := badPrmSetup(t)
+
+	good := privateKey.ParamProof(s, tt, lambda)
+
+	swapped := &ParamProof{good.Z, good.A}
+	alteredA := privateKey.ParamProof(s, tt, lambda)
+	alteredA.A[42] = nil
+	alteredZ := privateKey.ParamProof(s, tt, lambda)
+	alteredZ.Z[69] = big.NewInt(1337)
+	proofBadS := privateKey.ParamProof(badS, tt, lambda)
+	proofBadT := privateKey.ParamProof(s, badT, lambda)
+	proofBadLambda := privateKey.ParamProof(s, tt, badLambda)
+
+	badProofs := []*ParamProof{
+		swapped,
+		alteredA,
+		alteredZ,
+		proofBadS,
+		proofBadT,
+		proofBadLambda,
+	}
+
+	for _, p := range badProofs {
+		assert.False(t, p.ParamVerify(publicKey.N, s, tt), "bad proofs should not verify")
+	}
 }
