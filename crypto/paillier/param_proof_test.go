@@ -90,4 +90,7 @@ func TestParamProofVerifyFail(t *testing.T) {
 	for _, p := range badProofs {
 		assert.False(t, p.ParamVerify(publicKey.N, s, tt), "bad proofs should not verify")
 	}
+
+	assert.False(t, good.ParamVerify(publicKey.N, badS, tt), "good proof should not verify with bad params")
+	assert.False(t, good.ParamVerify(publicKey.N, s, badT), "good proof should not verify with bad params")
 }
