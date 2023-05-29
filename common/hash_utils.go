@@ -20,3 +20,26 @@ func LiterallyJustMod(q *big.Int, eHash *big.Int) *big.Int { // e' = eHash
 	e := eHash.Mod(eHash, q)
 	return e
 }
+
+// Return a big.Int between 0 and N
+func HashToN(N *big.Int, in ...*big.Int) *big.Int {
+	bitCnt := N.BitLen()
+	// Add 256 bits to remove bias from LiterallyJustMod,
+	// and another 256 bits to compensate for any remainder from the division.
+	blockCnt := (bitCnt / 256) + 2
+
+	dest := big.NewInt(0)
+	tmp := make([]*big.Int, 1, 1+len(in))
+	tmp = append(tmp, in...)
+
+	for i := 0; i < blockCnt; i++ {
+		// dest = h(0, in) | h(1, in) | h(2, in) | ...
+		tmp[0] = big.NewInt(int64(i))
+		dest.Lsh(dest, 256)
+		dest.Or(dest, SHA512_256i(tmp...))
+	}
+
+	// dest has at least N.BitLen + 256 bits,
+	// thus it is safe to use Mod
+	return LiterallyJustMod(N, dest)
+}

@@ -41,6 +41,8 @@ func TestInt(t *testing.T) {
 
 	mod7 := common.ModInt(seven)
 
+	assert.Equal(six, mod7.Neg(one))
+
 	assert.True(common.Eq(zero, mod7.Add(one, six)))
 	assert.Equal(two, mod7.Add(four, five))
 	assert.Equal(six, mod7.Add(zero, minusOne))

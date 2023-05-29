@@ -35,6 +35,12 @@ func ModInt(mod *big.Int) *modInt {
 	return (*modInt)(mod)
 }
 
+func (mi *modInt) Neg(x *big.Int) *big.Int {
+	i := new(big.Int)
+	i.Neg(x)
+	return i.Mod(i, mi.i())
+}
+
 func (mi *modInt) Add(x, y *big.Int) *big.Int {
 	i := new(big.Int)
 	i.Add(x, y)
