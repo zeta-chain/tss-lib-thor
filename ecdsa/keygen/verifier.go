@@ -27,6 +27,10 @@ type paramMessage interface {
 	UnmarshalParamProof() (*paillier.ParamProof, error)
 }
 
+type modMessage interface {
+	UnmarshalModProof() (*paillier.ModProof, error)
+}
+
 func NewProofVerifier(concurrency int) *ProofVerifier {
 	if concurrency == 0 {
 		panic(errors.New("NewDlnProofverifier: concurrency level must not be zero"))
@@ -93,5 +97,29 @@ func (pv *ProofVerifier) VerifyParamProof(
 		}
 
 		onDone(prmProof.ParamVerify(N, s, t))
+	}()
+}
+
+func (pv *ProofVerifier) VerifyModProof(
+	m modMessage,
+	N *big.Int,
+	onDone func(bool),
+) {
+	pv.semaphore <- struct{}{}
+	go func() {
+		defer func() { <-pv.semaphore }()
+
+		modProof, err := m.UnmarshalModProof()
+		if err != nil {
+			onDone(false)
+			return
+		}
+
+		ok, err2 := modProof.ModVerify(N)
+		if err2 != nil {
+			onDone(false)
+			return
+		}
+		onDone(ok)
 	}()
 }

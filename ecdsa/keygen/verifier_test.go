@@ -431,3 +431,188 @@ func prepareParamProof() (*LocalPreParams, [][]byte, [][]byte, *big.Int, *big.In
 
 	return &preParams, common.BigIntsToBytes(proof.A[:]), common.BigIntsToBytes(proof.Z[:]), s, t, nil
 }
+
+func BenchmarkProofVerifier_VerifyModProof(b *testing.B) {
+	preParams, w, x, a, bb, z := prepareModProofB(b)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: bb,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		resultChan := make(chan bool)
+		verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+			resultChan <- result
+		})
+		<-resultChan
+	}
+}
+
+func TestVerifyModProof_Success(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: b,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if !success {
+		t.Fatal("expected positive verification")
+	}
+}
+
+func TestVerifyModProof_MalformedMessage1(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x[:len(x)-1],
+			A: a,
+			B: b,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
+func TestVerifyModProof_MalformedMessage2(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a[:len(a)-1],
+			B: b,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
+func TestVerifyModProof_MalformedMessage3(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: b[:len(b)-1],
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
+func TestVerifyModProof_MalformedMessage4(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: b,
+			Z: z[:len(z)-1],
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
+func prepareModProofT(t *testing.T) (*LocalPreParams, []byte, [][]byte, []bool, []bool, [][]byte) {
+	preParams, w, x, a, b, z, err := prepareModProof()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return preParams, w, x, a, b, z
+}
+
+func prepareModProofB(b *testing.B) (*LocalPreParams, []byte, [][]byte, []bool, []bool, [][]byte) {
+	preParams, w, x, a, bb, z, err := prepareModProof()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	return preParams, w, x, a, bb, z
+}
+
+func prepareModProof() (*LocalPreParams, []byte, [][]byte, []bool, []bool, [][]byte, error) {
+	localPartySaveData, _, err := LoadKeygenTestFixtures(1)
+	if err != nil {
+		return nil, []byte{}, [][]byte{}, []bool{}, []bool{}, [][]byte{}, err
+	}
+
+	preParams := localPartySaveData[0].LocalPreParams
+
+	proof := preParams.PaillierSK.ModProof()
+
+	return &preParams, proof.W.Bytes(), common.BigIntsToBytes(proof.X[:]), proof.A[:], proof.B[:], common.BigIntsToBytes(proof.Z[:]), nil
+}

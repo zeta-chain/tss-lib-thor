@@ -241,3 +241,39 @@ func CompMod4thRt(x, p, q, n *big.Int) []*big.Int {
 
 	return res
 }
+
+func UnmarshalModProof(ws []byte, xs [][]byte, as []bool, bs []bool, zs [][]byte) (*ModProof, error) {
+	if len(ws) == 0 {
+		return nil, fmt.Errorf("UnmarshalModProof: W length zero")
+	}
+	if len(xs) != PARAM_M {
+		return nil, fmt.Errorf("UnmarshalModProof: incorrect number of Xs: %d, expected %d", len(xs), PARAM_M)
+	}
+	if len(as) != PARAM_M {
+		return nil, fmt.Errorf("UnmarshalModProof: incorrect number of As: %d, expected %d", len(as), PARAM_M)
+	}
+	if len(bs) != PARAM_M {
+		return nil, fmt.Errorf("UnmarshalModProof: incorrect number of Bs: %d, expected %d", len(bs), PARAM_M)
+	}
+	if len(zs) != PARAM_M {
+		return nil, fmt.Errorf("UnmarshalModProof: incorrect number of Zs: %d, expected %d", len(zs), PARAM_M)
+	}
+
+	W := new(big.Int).SetBytes(ws)
+	x := common.MultiBytesToBigInts(xs)
+	z := common.MultiBytesToBigInts(zs)
+
+	var X [PARAM_M]*big.Int
+	var A [PARAM_M]bool
+	var B [PARAM_M]bool
+	var Z [PARAM_M]*big.Int
+
+	for i := 0; i < PARAM_M; i++ {
+		X[i] = x[i]
+		A[i] = as[i]
+		B[i] = bs[i]
+		Z[i] = z[i]
+	}
+
+	return &ModProof{W, X, A, B, Z}, nil
+}

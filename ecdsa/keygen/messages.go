@@ -136,6 +136,11 @@ func (m *KGRound1Message) UnmarshalParamProof() (*paillier.ParamProof, error) {
 	return paillier.UnmarshalParamProof(p.GetA(), p.GetZ())
 }
 
+func (m *KGRound1Message) UnmarshalModProof() (*paillier.ModProof, error) {
+	p := m.GetModproof()
+	return paillier.UnmarshalModProof(p.GetW(), p.GetX(), p.GetA(), p.GetB(), p.GetZ())
+}
+
 func (p *KGRound1Message_DLNProof) ValidateBasic() bool {
 	return p != nil &&
 		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
