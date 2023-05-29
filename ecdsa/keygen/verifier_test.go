@@ -304,6 +304,27 @@ func prepareProof() (*LocalPreParams, [][]byte, [][]byte, error) {
 	return &preParams, common.BigIntsToBytes(proof.Alpha[:]), common.BigIntsToBytes(proof.T[:]), nil
 }
 
+func BenchmarkProofVerifier_VerifyParamProof(b *testing.B) {
+	preParams, a, z, s, t := prepareParamProofB(b)
+	message := &KGRound1Message{
+		Prmproof: &KGRound1Message_ParamProof{
+			A: a,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		resultChan := make(chan bool)
+		verifier.VerifyParamProof(message, preParams.PaillierSK.PublicKey.N, s, t, func(result bool) {
+			resultChan <- result
+		})
+		<-resultChan
+	}
+}
+
 func TestVerifyParamProof_Success(t *testing.T) {
 	preParams, a, z, s, tt := prepareParamProofT(t)
 	message := &KGRound1Message{
