@@ -50,3 +50,14 @@ func NonEmptyMultiBytes(bzs [][]byte, expectLen ...int) bool {
 	}
 	return true
 }
+
+func NonEmptyBools(bs []bool, expectLen ...int) bool {
+	if len(bs) == 0 {
+		return false
+	}
+	// variadic (optional) arg test
+	if 0 < len(expectLen) && expectLen[0] != len(bs) {
+		return false
+	}
+	return true
+}

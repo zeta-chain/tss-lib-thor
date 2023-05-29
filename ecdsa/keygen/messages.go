@@ -40,6 +40,7 @@ func NewKGRound1Message(
 	dlnProof1, dlnProof2 *dlnproof.Proof,
 	si, ti *big.Int,
 	paramProof *paillier.ParamProof,
+	modProof *paillier.ModProof,
 ) (tss.ParsedMessage, error) {
 	meta := tss.MessageRouting{
 		From:        from,
@@ -65,6 +66,13 @@ func NewKGRound1Message(
 			A: common.BigIntsToBytes(paramProof.A[:]),
 			Z: common.BigIntsToBytes(paramProof.Z[:]),
 		},
+		Modproof: &KGRound1Message_ModProof{
+			W: modProof.W.Bytes(),
+			X: common.BigIntsToBytes(modProof.X[:]),
+			A: modProof.A[:],
+			B: modProof.B[:],
+			Z: common.BigIntsToBytes(modProof.Z[:]),
+		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg), nil
@@ -81,7 +89,8 @@ func (m *KGRound1Message) ValidateBasic() bool {
 		m.GetDlnproof_2().ValidateBasic() &&
 		common.NonEmptyBytes(m.GetS()) &&
 		common.NonEmptyBytes(m.GetT()) &&
-		m.GetPrmproof().ValidateBasic()
+		m.GetPrmproof().ValidateBasic() &&
+		m.GetModproof().ValidateBasic()
 }
 
 func (m *KGRound1Message) UnmarshalCommitment() *big.Int {
@@ -136,6 +145,15 @@ func (p *KGRound1Message_DLNProof) ValidateBasic() bool {
 func (p *KGRound1Message_ParamProof) ValidateBasic() bool {
 	return p != nil &&
 		common.NonEmptyMultiBytes(p.GetA(), paillier.PARAM_M) &&
+		common.NonEmptyMultiBytes(p.GetZ(), paillier.PARAM_M)
+}
+
+func (p *KGRound1Message_ModProof) ValidateBasic() bool {
+	return p != nil &&
+		common.NonEmptyBytes(p.GetW()) &&
+		common.NonEmptyMultiBytes(p.GetX(), paillier.PARAM_M) &&
+		common.NonEmptyBools(p.GetA(), paillier.PARAM_M) &&
+		common.NonEmptyBools(p.GetB(), paillier.PARAM_M) &&
 		common.NonEmptyMultiBytes(p.GetZ(), paillier.PARAM_M)
 }
 

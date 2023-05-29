@@ -104,6 +104,7 @@ func (round *round1) Start() *tss.Error {
 	round.temp.Si = modN.Exp(round.temp.Ti, round.temp.Lambda)
 
 	paramProof := preParams.PaillierSK.ParamProof(round.temp.Si, round.temp.Ti, round.temp.Lambda)
+	modProof := preParams.PaillierSK.ModProof()
 
 	// for this P: SAVE
 	// - shareID
@@ -133,6 +134,7 @@ func (round *round1) Start() *tss.Error {
 			round.temp.Si,
 			round.temp.Ti,
 			paramProof,
+			modProof,
 		)
 		if err != nil {
 			return round.WrapError(err, Pi)

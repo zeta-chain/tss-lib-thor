@@ -20,6 +20,13 @@ message KGRound1Message {
         repeated bytes a = 1;
         repeated bytes z = 2;
     }
+    message ModProof {
+        bytes w = 1;
+        repeated bytes x = 2;
+        repeated bool a = 3;
+        repeated bool b = 4;
+        repeated bytes z = 5;
+    }
     reserved 6, 7;
     bytes commitment = 1;
     bytes paillier_n = 2;
@@ -31,6 +38,7 @@ message KGRound1Message {
     bytes s = 10;
     bytes t = 11;
     ParamProof prmproof = 12;
+    ModProof modproof = 13;
 }
 
 /*
