@@ -18,6 +18,10 @@ type (
 	}
 )
 
+// ParamProof is an implementation of the ring-pedersen parameter proof of
+// Canetti, R., Gennaro, R., Goldfeder, S., Makriyannis, N., Peled, U.:
+// UC Non-Interactive, Proactive, Threshold ECDSA with Identifiable Aborts.
+// In: Cryptology ePrint Archive 2021/060
 func (privateKey *PrivateKey) ParamProof(s, t, lambda *big.Int) *ParamProof {
 	N := privateKey.PublicKey.N
 	modN := common.ModInt(N)
@@ -56,12 +60,15 @@ func (pf ParamProof) ParamVerify(N, s, t *big.Int) bool {
 	return true
 }
 
+// Standard Fiat-Shamir transform
 func ParamChallenge(N, s, t *big.Int, A [PARAM_M]*big.Int) [PARAM_M]byte {
 	aHash := common.SHA512_256i(A[:]...)
 	e := common.SHA512_256i(N, s, t, aHash)
 	return BytesToBits(e)
 }
 
+// Turn a big.Int with at least 80 (PARAM_M) bits into 80 bytes,
+// each being either 1 or 0
 func BytesToBits(b *big.Int) [PARAM_M]byte {
 	var e [PARAM_M]byte
 	for i := 0; i < PARAM_M; i++ {

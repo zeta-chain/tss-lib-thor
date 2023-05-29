@@ -305,7 +305,7 @@ func (privateKey *PrivateKey) GetPQ() (*big.Int, *big.Int) {
 	m2subN := new(big.Int).Sub(m2, n) // ((p + q)^2 / 4) - n = ((p + q)^2 / 4) - pq
 	// = (pp + qq + 2pq) / 4 - pq
 	// = (pp + qq + 2pq - 4pq) / 4
-	// = (pp - 2pq + qq - 2pq) / 4
+	// = (pp - 2pq + qq) / 4
 	// = (p - q)^2 / 4
 	s := new(big.Int).Sqrt(m2subN) // = sqrt((p - q)^2 / 4)
 	// = |p - q| / 2
