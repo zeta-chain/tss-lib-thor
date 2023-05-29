@@ -39,14 +39,14 @@ func NewProofVerifier(concurrency int) *ProofVerifier {
 	}
 }
 
-func (dpv *ProofVerifier) VerifyDLNProof1(
+func (pv *ProofVerifier) VerifyDLNProof1(
 	m dlnMessage,
 	h1, h2, n *big.Int,
 	onDone func(bool),
 ) {
-	dpv.semaphore <- struct{}{}
+	pv.semaphore <- struct{}{}
 	go func() {
-		defer func() { <-dpv.semaphore }()
+		defer func() { <-pv.semaphore }()
 
 		dlnProof, err := m.UnmarshalDLNProof1()
 		if err != nil {
@@ -58,14 +58,14 @@ func (dpv *ProofVerifier) VerifyDLNProof1(
 	}()
 }
 
-func (dpv *ProofVerifier) VerifyDLNProof2(
+func (pv *ProofVerifier) VerifyDLNProof2(
 	m dlnMessage,
 	h1, h2, n *big.Int,
 	onDone func(bool),
 ) {
-	dpv.semaphore <- struct{}{}
+	pv.semaphore <- struct{}{}
 	go func() {
-		defer func() { <-dpv.semaphore }()
+		defer func() { <-pv.semaphore }()
 
 		dlnProof, err := m.UnmarshalDLNProof2()
 		if err != nil {
