@@ -173,12 +173,10 @@ func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
 
 	for _, rp := range rps {
 		for _, rq := range rqs {
-			if rp != nil && rq != nil {
-				temp1 := modN.Mul(modN.Mul(b, q), rp)
-				temp2 := modN.Mul(modN.Mul(a, p), rq)
-				restemp := modN.Add(temp1, temp2)
-				res = append(res, restemp)
-			}
+			temp1 := modN.Mul(modN.Mul(b, q), rp)
+			temp2 := modN.Mul(modN.Mul(a, p), rq)
+			restemp := modN.Add(temp1, temp2)
+			res = append(res, restemp)
 		}
 	}
 
