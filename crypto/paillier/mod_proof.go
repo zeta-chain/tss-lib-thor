@@ -167,6 +167,8 @@ func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
 
 	a := big.NewInt(0)
 	b := big.NewInt(0)
+	// z.GCD(x, y, a, b) sets z to the greatest common divisor of a and b and returns z.
+	// If x or y are not nil, GCD sets their value such that z = a*x + b*y. 
 	new(big.Int).GCD(a, b, p, q)
 
 	for _, rp := range rps {
