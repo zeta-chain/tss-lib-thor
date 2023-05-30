@@ -29,7 +29,7 @@ func (privateKey *PrivateKey) ModProof() *ModProof {
 	w := new(big.Int)
 	for {
 		w = common.GetRandomPositiveInt(N)
-		if Jacobi(w, N) == -1 {
+		if big.Jacobi(w, N) == -1 {
 			break
 		}
 	}
@@ -144,42 +144,6 @@ func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 	}
 
 	panic("no root found")
-}
-
-func Jacobi(a, n *big.Int) int {
-	aa := new(big.Int).Mod(a, n)
-	nn := new(big.Int).Set(n)
-	t := 1
-
-	zero := big.NewInt(0)
-	one := big.NewInt(1)
-	two := big.NewInt(2)
-	three := big.NewInt(3)
-	four := big.NewInt(4)
-	five := big.NewInt(5)
-	eight := big.NewInt(8)
-
-	for !common.Eq(aa, zero) {
-		for common.Eq(new(big.Int).Mod(aa, two), zero) {
-			aa.Div(aa, two)
-			r := new(big.Int).Mod(nn, eight)
-			if common.Eq(r, three) || common.Eq(r, five) {
-				t = t * -1
-			}
-		}
-		temp := new(big.Int).Set(aa)
-		aa.Set(nn)
-		nn.Set(temp)
-		if common.Eq(new(big.Int).Mod(aa, four), three) && common.Eq(new(big.Int).Mod(nn, four), three) {
-			t = t * -1
-		}
-		aa.Mod(aa, nn)
-	}
-	if common.Eq(nn, one) {
-		return t
-	} else {
-		return 0
-	}
 }
 
 // calculate the square root of x modulo safe prime p
