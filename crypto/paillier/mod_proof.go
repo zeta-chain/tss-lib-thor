@@ -147,32 +147,19 @@ func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 }
 
 // calculate the square root of x modulo safe prime p
-func PrimeModSqrt(x, p *big.Int) (*big.Int, *big.Int) {
-	modP := common.ModInt(p)
-	power := big.NewInt(1)
-	power.Add(p, power)
-	power.Div(power, big.NewInt(4))
-
-	r := modP.Exp(x, power)
-	rr := new(big.Int).Neg(r)
-	rr.Mod(rr, p)
-
-	if !common.Eq(modP.Mul(r, r), new(big.Int).Mod(x, p)) {
-		r = nil
+func PrimeModSqrt(x, p *big.Int) []*big.Int {
+	r := new(big.Int).ModSqrt(x, p)
+	if r == nil {
+		return []*big.Int{}
+	} else {
+		return []*big.Int{r, common.ModInt(p).Neg(r)}
 	}
-	if !common.Eq(modP.Mul(rr, rr), new(big.Int).Mod(x, p)) {
-		rr = nil
-	}
-	return r, rr
 }
 
 // calculate the square root of x modulo n = pq for safe primes p,q
 func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
-	rp1, rp2 := PrimeModSqrt(x, p)
-	rq1, rq2 := PrimeModSqrt(x, q)
-
-	rps := [2]*big.Int{rp1, rp2}
-	rqs := [2]*big.Int{rq1, rq2}
+	rps := PrimeModSqrt(x, p)
+	rqs := PrimeModSqrt(x, q)
 
 	var res []*big.Int
 
