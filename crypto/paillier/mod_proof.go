@@ -70,7 +70,7 @@ func (pf ModProof) ModVerify(N *big.Int) (bool, error) {
 		return false, fmt.Errorf("mod proof verify: modulus %d is even", N)
 	}
 
-	if N.ProbablyPrime(0) {
+	if N.ProbablyPrime(30) {
 		return false, fmt.Errorf("mod proof verify: modulus %d seems prime", N)
 	}
 
