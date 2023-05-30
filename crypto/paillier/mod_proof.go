@@ -62,6 +62,10 @@ func (privateKey *PrivateKey) ModProof() *ModProof {
 	}
 }
 
+// Verification: Accept iff all of the following hold:
+// – N is an odd composite number.
+// – z_i^N = y_i for every i ∈ [m]
+// – x_i^4 = (-1)^a_i * w^b_i * y_i mod N and a_i, b_i ∈ {0, 1} for every i ∈ [m].
 func (pf ModProof) ModVerify(N *big.Int) (bool, error) {
 	rem2 := new(big.Int).Mod(N, big.NewInt(2))
 	odd := rem2.Int64() == 1
@@ -102,6 +106,7 @@ func (pf ModProof) ModVerify(N *big.Int) (bool, error) {
 	return true, nil
 }
 
+// Standard Fiat-Shamir transform
 func ModChallenge(N, w *big.Int) [PARAM_M]*big.Int {
 	var y [PARAM_M]*big.Int
 
@@ -112,6 +117,8 @@ func ModChallenge(N, w *big.Int) [PARAM_M]*big.Int {
 	return y
 }
 
+// Determine values a_i and b_i so that a valid x_i exists,
+// and return a_i, b_i and x_i.
 func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 	as := [...]bool{false, true}
 	bs := [...]bool{false, true}
