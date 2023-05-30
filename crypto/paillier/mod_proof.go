@@ -91,11 +91,9 @@ func (pf ModProof) ModVerify(N *big.Int) (bool, error) {
 		yy_i := new(big.Int).Set(yi)
 		if pf.B[i] {
 			yy_i.Mul(yy_i, pf.W)
-			yy_i.Mod(yy_i, N)
 		}
 		if pf.A[i] {
 			yy_i.Neg(yy_i)
-			yy_i.Mod(yy_i, N)
 		}
 		yy_i.Mod(yy_i, N)
 		if !common.Eq(xi4, yy_i) {
@@ -129,13 +127,13 @@ func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 
 			if b {
 				yy_i.Mul(yy_i, w)
-				yy_i.Mod(yy_i, N)
 			}
 
 			if a {
 				yy_i.Neg(yy_i)
-				yy_i.Mod(yy_i, N)
 			}
+
+			yy_i.Mod(yy_i, N)
 
 			roots := CompMod4thRt(yy_i, p, q, N)
 
