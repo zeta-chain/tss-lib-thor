@@ -158,6 +158,7 @@ func PrimeModSqrt(x, p *big.Int) []*big.Int {
 
 // calculate the square root of x modulo n = pq for safe primes p,q
 func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
+	// rps and rqs are empty if no root exists modulo the respective prime.
 	rps := PrimeModSqrt(x, p)
 	rqs := PrimeModSqrt(x, q)
 
@@ -167,15 +168,17 @@ func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
 
 	a := big.NewInt(0)
 	b := big.NewInt(0)
-	// z.GCD(x, y, a, b) sets z to the greatest common divisor of a and b and returns z.
-	// If x or y are not nil, GCD sets their value such that z = a*x + b*y. 
+	// z.GCD(a, b, p, q) sets z to the greatest common divisor of p and q and returns z.
+	// If a or b are not nil, GCD sets their value such that z = p*a + q*b.
+	//
+	// a = p^-1 mod q, and b = q^-1 mod p
 	new(big.Int).GCD(a, b, p, q)
 
 	for _, rp := range rps {
 		for _, rq := range rqs {
 			temp1 := modN.Mul(modN.Mul(b, q), rp)
 			temp2 := modN.Mul(modN.Mul(a, p), rq)
-			restemp := modN.Add(temp1, temp2)
+			restemp := modN.Add(temp1, temp2) // b*q*rp + a*p*rq mod N
 			res = append(res, restemp)
 		}
 	}
@@ -190,9 +193,7 @@ func CompMod4thRt(x, p, q, n *big.Int) []*big.Int {
 
 	for _, sqroot := range sqroots {
 		troots := CompModSqrt(sqroot, p, q, n)
-		for _, troot := range troots {
-			res = append(res, troot)
-		}
+		res = append(res, troots...)
 	}
 
 	return res
