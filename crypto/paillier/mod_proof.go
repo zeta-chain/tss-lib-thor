@@ -157,6 +157,21 @@ func PrimeModSqrt(x, p *big.Int) []*big.Int {
 }
 
 // calculate the square root of x modulo n = pq for safe primes p,q
+//
+// This is calculated by taking the square roots of x modulo p and q,
+// and combining them using the Chinese Remainder Theorem.
+//
+// r^2 = x (mod pq) implies r^2 = x (mod p) and r^2 = x (mod q)
+//
+// Once we have roots rp, rq modulo p and q,
+// the Chinese Remainder Theorem gives r as
+// r = rp * c1 * pq/p + rq * c2 * pq/q = rp * c1 * q + rq * c2 *p (mod pq)
+// where c1 = q^-1 (mod p) and c2 = p^-1 (mod q)
+//
+// The Extended Euclidean Algorithm on p and q returns values a and b
+// such that ap + bq = 1, i.e. a = p^-1 = c2 (mod q) and b = q^-1 = c1 (mod p)
+//
+// Thus the answer is b*q*rp + a*p*rq (mod pq).
 func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
 	// rps and rqs are empty if no root exists modulo the respective prime.
 	rps := PrimeModSqrt(x, p)
