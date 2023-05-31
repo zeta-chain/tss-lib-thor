@@ -135,15 +135,15 @@ func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 
 			yy_i.Mod(yy_i, N)
 
-			roots := CompMod4thRt(yy_i, p, q, N)
+			maybeRoot := CompMod4thRt(yy_i, p, q, N)
 
-			if roots != nil {
-				return a, b, roots[0]
+			if maybeRoot != nil {
+				return a, b, maybeRoot
 			}
 		}
 	}
 
-	panic("no root found")
+	panic("no root found") // this should not be reached with n=pq for safe primes p, q
 }
 
 // calculate the square root of x modulo safe prime p
@@ -186,17 +186,16 @@ func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
 	return res
 }
 
-func CompMod4thRt(x, p, q, n *big.Int) []*big.Int {
+func CompMod4thRt(x, p, q, n *big.Int) *big.Int {
 	sqroots := CompModSqrt(x, p, q, n)
-
-	var res []*big.Int
 
 	for _, sqroot := range sqroots {
 		troots := CompModSqrt(sqroot, p, q, n)
-		res = append(res, troots...)
+		if len(troots) > 0 {
+			return troots[0]
+		}
 	}
-
-	return res
+	return nil
 }
 
 func UnmarshalModProof(ws []byte, xs [][]byte, as []bool, bs []bool, zs [][]byte) (*ModProof, error) {
