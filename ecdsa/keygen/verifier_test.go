@@ -39,11 +39,11 @@ func BenchmarkDlnProof_Verify(b *testing.B) {
 }
 
 func BenchmarkDlnVerifier_VerifyProof1(b *testing.B) {
-	preParams, alpha, t := prepareProofB(b)
+	preParams, alpha, tt := prepareProofB(b)
 	message := &KGRound1Message{
 		Dlnproof_1: &KGRound1Message_DLNProof{
 			Alpha: alpha,
-			T:     t,
+			T:     tt,
 		},
 	}
 
@@ -60,11 +60,11 @@ func BenchmarkDlnVerifier_VerifyProof1(b *testing.B) {
 }
 
 func BenchmarkDlnVerifier_VerifyProof2(b *testing.B) {
-	preParams, alpha, t := prepareProofB(b)
+	preParams, alpha, tt := prepareProofB(b)
 	message := &KGRound1Message{
 		Dlnproof_2: &KGRound1Message_DLNProof{
 			Alpha: alpha,
-			T:     t,
+			T:     tt,
 		},
 	}
 
@@ -276,12 +276,12 @@ func prepareProofT(t *testing.T) (*LocalPreParams, [][]byte, [][]byte) {
 }
 
 func prepareProofB(b *testing.B) (*LocalPreParams, [][]byte, [][]byte) {
-	preParams, alpha, t, err := prepareProof()
+	preParams, alpha, tt, err := prepareProof()
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	return preParams, alpha, t
+	return preParams, alpha, tt
 }
 
 func prepareProof() (*LocalPreParams, [][]byte, [][]byte, error) {
@@ -305,7 +305,7 @@ func prepareProof() (*LocalPreParams, [][]byte, [][]byte, error) {
 }
 
 func BenchmarkProofVerifier_VerifyParamProof(b *testing.B) {
-	preParams, a, z, s, t := prepareParamProofB(b)
+	preParams, a, z, s, tt := prepareParamProofB(b)
 	message := &KGRound1Message{
 		Prmproof: &KGRound1Message_ParamProof{
 			A: a,
@@ -318,7 +318,7 @@ func BenchmarkProofVerifier_VerifyParamProof(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		resultChan := make(chan bool)
-		verifier.VerifyParamProof(message, preParams.PaillierSK.PublicKey.N, s, t, func(result bool) {
+		verifier.VerifyParamProof(message, preParams.PaillierSK.PublicKey.N, s, tt, func(result bool) {
 			resultChan <- result
 		})
 		<-resultChan
@@ -404,12 +404,12 @@ func prepareParamProofT(t *testing.T) (*LocalPreParams, [][]byte, [][]byte, *big
 }
 
 func prepareParamProofB(b *testing.B) (*LocalPreParams, [][]byte, [][]byte, *big.Int, *big.Int) {
-	preParams, a, z, s, t, err := prepareParamProof()
+	preParams, a, z, s, tt, err := prepareParamProof()
 	if err != nil {
 		b.Fatal(err)
 	}
 
-	return preParams, a, z, s, t
+	return preParams, a, z, s, tt
 }
 
 func prepareParamProof() (*LocalPreParams, [][]byte, [][]byte, *big.Int, *big.Int, error) {
@@ -424,12 +424,12 @@ func prepareParamProof() (*LocalPreParams, [][]byte, [][]byte, *big.Int, *big.In
 	modN := common.ModInt(N)
 	lambda := common.GetRandomPositiveInt(preParams.PaillierSK.PhiN)
 	r := common.GetRandomPositiveRelativelyPrimeInt(N)
-	t := modN.Mul(r, r)
-	s := modN.Exp(t, lambda)
+	tt := modN.Mul(r, r)
+	s := modN.Exp(tt, lambda)
 
-	proof := preParams.PaillierSK.ParamProof(s, t, lambda)
+	proof := preParams.PaillierSK.ParamProof(s, tt, lambda)
 
-	return &preParams, common.BigIntsToBytes(proof.A[:]), common.BigIntsToBytes(proof.Z[:]), s, t, nil
+	return &preParams, common.BigIntsToBytes(proof.A[:]), common.BigIntsToBytes(proof.Z[:]), s, tt, nil
 }
 
 func BenchmarkProofVerifier_VerifyModProof(b *testing.B) {
