@@ -42,7 +42,7 @@ func (privateKey *PrivateKey) ModProof() *ModProof {
 	var z [PARAM_M]*big.Int
 
 	for i, y_i := range y {
-		a_i, b_i, x_i := DefineXi(w, y_i, p, q, N)
+		a_i, b_i, x_i := defineXi(w, y_i, p, q, N)
 		x[i] = x_i
 		a[i] = a_i
 		b[i] = b_i
@@ -117,7 +117,7 @@ func ModChallenge(N, w *big.Int) [PARAM_M]*big.Int {
 
 // Determine values a_i and b_i so that a valid x_i exists,
 // and return a_i, b_i and x_i.
-func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
+func defineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 	as := [...]bool{false, true}
 	bs := [...]bool{false, true}
 
@@ -135,7 +135,7 @@ func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 
 			yy_i.Mod(yy_i, N)
 
-			maybeRoot := CompMod4thRt(yy_i, p, q, N)
+			maybeRoot := compMod4thRt(yy_i, p, q, N)
 
 			if maybeRoot != nil {
 				return a, b, maybeRoot
@@ -147,7 +147,7 @@ func DefineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 }
 
 // calculate the square root of x modulo safe prime p
-func PrimeModSqrt(x, p *big.Int) []*big.Int {
+func primeModSqrt(x, p *big.Int) []*big.Int {
 	r := new(big.Int).ModSqrt(x, p)
 	if r == nil {
 		return []*big.Int{}
@@ -172,10 +172,10 @@ func PrimeModSqrt(x, p *big.Int) []*big.Int {
 // such that ap + bq = 1, i.e. a = p^-1 = c2 (mod q) and b = q^-1 = c1 (mod p)
 //
 // Thus the answer is b*q*rp + a*p*rq (mod pq).
-func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
+func compModSqrt(x, p, q, n *big.Int) []*big.Int {
 	// rps and rqs are empty if no root exists modulo the respective prime.
-	rps := PrimeModSqrt(x, p)
-	rqs := PrimeModSqrt(x, q)
+	rps := primeModSqrt(x, p)
+	rqs := primeModSqrt(x, q)
 
 	var res []*big.Int
 
@@ -201,11 +201,11 @@ func CompModSqrt(x, p, q, n *big.Int) []*big.Int {
 	return res
 }
 
-func CompMod4thRt(x, p, q, n *big.Int) *big.Int {
-	sqroots := CompModSqrt(x, p, q, n)
+func compMod4thRt(x, p, q, n *big.Int) *big.Int {
+	sqroots := compModSqrt(x, p, q, n)
 
 	for _, sqroot := range sqroots {
-		troots := CompModSqrt(sqroot, p, q, n)
+		troots := compModSqrt(sqroot, p, q, n)
 		if len(troots) > 0 {
 			return troots[0]
 		}
