@@ -586,6 +586,130 @@ func TestVerifyModProof_MalformedMessage4(t *testing.T) {
 	}
 }
 
+func TestVerifyModProof_MalformedMessage5(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	x[1] = big.NewInt(1234)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: b,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
+func TestVerifyModProof_MalformedMessage6(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	z[1] = big.NewInt(1234)
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: b,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
+func TestVerifyModProof_MalformedMessage7(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	// When defining x_i, we try false first.
+	// If a[i] = true, it means a 4th root does not exist for a[i] = false.
+	for i, aa := range a {
+		if aa {
+			a[i] = false
+			break
+		}
+	}
+	
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: b,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
+func TestVerifyModProof_MalformedMessage8(t *testing.T) {
+	preParams, w, x, a, b, z := prepareModProofT(t)
+	// When defining x_i, we try false first.
+	// If b[i] = true, it means a 4th root does not exist for b[i] = false.
+	for i, bb := range b {
+		if bb {
+			b[i] = false
+			break
+		}
+	}
+	
+	message := &KGRound1Message{
+		Modproof: &KGRound1Message_ModProof{
+			W: w,
+			X: x,
+			A: a,
+			B: b,
+			Z: z,
+		},
+	}
+
+	verifier := NewProofVerifier(runtime.GOMAXPROCS(0))
+
+	resultChan := make(chan bool)
+
+	verifier.VerifyModProof(message, preParams.PaillierSK.PublicKey.N, func(result bool) {
+		resultChan <- result
+	})
+
+	success := <-resultChan
+	if success {
+		t.Fatal("expected negative verification")
+	}
+}
+
 func prepareModProofT(t *testing.T) (*LocalPreParams, []byte, [][]byte, []bool, []bool, [][]byte) {
 	preParams, w, x, a, b, z, err := prepareModProof()
 	if err != nil {
