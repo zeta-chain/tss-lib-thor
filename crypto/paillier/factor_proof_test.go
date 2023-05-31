@@ -1,4 +1,4 @@
-package paillier_test
+package paillier
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bnb-chain/tss-lib/common"
-	. "github.com/bnb-chain/tss-lib/crypto/paillier"
 )
 
 var (
