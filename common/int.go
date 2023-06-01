@@ -23,6 +23,14 @@ func Eq(x, y *big.Int) bool {
 	return x.Cmp(y) == 0
 }
 
+func Gt(x, y *big.Int) bool {
+	return x.Cmp(y) == 1
+}
+
+func Lt(x, y *big.Int) bool {
+	return x.Cmp(y) == -1
+}
+
 // return x + yz
 func AddMul(x, y, z *big.Int) *big.Int {
 	res := new(big.Int)
