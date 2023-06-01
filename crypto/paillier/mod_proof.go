@@ -39,7 +39,7 @@ func (privateKey *PrivateKey) ModProof() *ModProof {
 	var z [PARAM_M]*big.Int
 
 	for i, y_i := range y {
-		a_i, b_i, x_i := defineXi(w, y_i, p, q, N)
+		a_i, b_i, x_i := defineXi(w, y_i, p, q, N, phiN)
 		x[i] = x_i
 		a[i] = a_i
 		b[i] = b_i
@@ -129,7 +129,7 @@ func ModChallenge(N, w *big.Int) [PARAM_M]*big.Int {
 
 // Determine values a_i and b_i so that a valid x_i exists,
 // and return a_i, b_i and x_i.
-func defineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
+func defineXi(w, y_i, p, q, N, phiN *big.Int) (bool, bool, *big.Int) {
 	bools := [...]bool{false, true}
 
 	for _, a := range bools {
@@ -146,10 +146,8 @@ func defineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 
 			yy_i.Mod(yy_i, N)
 
-			maybeRoot := compMod4thRt(yy_i, p, q, N)
-
-			if maybeRoot != nil {
-				return a, b, maybeRoot
+			if isQuadResidueModComposite(yy_i, p, q) {
+				return a, b, quadResidueModComposite(yy_i, p, q, N, phiN)
 			}
 		}
 	}
@@ -157,71 +155,25 @@ func defineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
 	panic("no root found") // this should not be reached with n=pq for safe primes p, q
 }
 
-// calculate the square root of x modulo safe prime p
-func primeModSqrt(x, p *big.Int) []*big.Int {
-	r := new(big.Int).ModSqrt(x, p)
-	if r == nil {
-		return []*big.Int{}
-	} else {
-		return []*big.Int{r, common.ModInt(p).Neg(r)}
-	}
+func isQuadResidueModComposite(x, p, q *big.Int) bool {
+	return isQuadResidueModPrime(x, p) && isQuadResidueModPrime(x, q)
 }
 
-// calculate the square root of x modulo n = pq for safe primes p,q
-//
-// This is calculated by taking the square roots of x modulo p and q,
-// and combining them using the Chinese Remainder Theorem.
-//
-// r^2 = x (mod pq) implies r^2 = x (mod p) and r^2 = x (mod q)
-//
-// Once we have roots rp, rq modulo p and q,
-// the Chinese Remainder Theorem gives r as
-// r = rp * c1 * pq/p + rq * c2 * pq/q = rp * c1 * q + rq * c2 *p (mod pq)
-// where c1 = q^-1 (mod p) and c2 = p^-1 (mod q)
-//
-// The Extended Euclidean Algorithm on p and q returns values a and b
-// such that ap + bq = 1, i.e. a = p^-1 = c2 (mod q) and b = q^-1 = c1 (mod p)
-//
-// Thus the answer is b*q*rp + a*p*rq (mod pq).
-func compModSqrt(x, p, q, n *big.Int) []*big.Int {
-	// rps and rqs are empty if no root exists modulo the respective prime.
-	rps := primeModSqrt(x, p)
-	rqs := primeModSqrt(x, q)
+func isQuadResidueModPrime(x, p *big.Int) bool {
+	ps := new(big.Int).Sub(p, big.NewInt(1))
+	ps = ps.Div(ps, big.NewInt(2))
 
-	var res []*big.Int
+	return common.Eq(new(big.Int).Exp(x, ps, p), big.NewInt(1))
+}
 
-	modN := common.ModInt(n)
+func quadResidueModComposite(x, p, q, n, phiN *big.Int) *big.Int {
+	e := new(big.Int).Add(phiN, big.NewInt(4))
+	e = e.Div(e, big.NewInt(8))
 
-	a := big.NewInt(0)
-	b := big.NewInt(0)
-	// z.GCD(a, b, p, q) sets z to the greatest common divisor of p and q and returns z.
-	// If a or b are not nil, GCD sets their value such that z = p*a + q*b.
-	//
-	// a = p^-1 mod q, and b = q^-1 mod p
-	new(big.Int).GCD(a, b, p, q)
-
-	for _, rp := range rps {
-		for _, rq := range rqs {
-			temp1 := modN.Mul(modN.Mul(b, q), rp)
-			temp2 := modN.Mul(modN.Mul(a, p), rq)
-			restemp := modN.Add(temp1, temp2) // b*q*rp + a*p*rq mod N
-			res = append(res, restemp)
-		}
-	}
+	res := new(big.Int).Exp(x, e, n)
+	res = res.Exp(res, e, n)
 
 	return res
-}
-
-func compMod4thRt(x, p, q, n *big.Int) *big.Int {
-	sqroots := compModSqrt(x, p, q, n)
-
-	for _, sqroot := range sqroots {
-		troots := compModSqrt(sqroot, p, q, n)
-		if len(troots) > 0 {
-			return troots[0]
-		}
-	}
-	return nil
 }
 
 func UnmarshalModProof(ws []byte, xs [][]byte, as []bool, bs []bool, zs [][]byte) (*ModProof, error) {

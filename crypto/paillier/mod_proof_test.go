@@ -86,21 +86,8 @@ func TestModProofVerify_ForgedProof(t *testing.T) {
 func TestModSqrt(t *testing.T) {
 	assert := assert.New(t)
 	b := big.NewInt
-
-	one := b(1)
-	two := b(2)
-	three := b(3)
-	four := b(4)
-	five := b(5)
-	six := b(6)
-
-	seven := b(7) // safe prime: 7 = 2*3+1
-
-	eight := b(8)
-	nine := b(9)
-	ten := b(10)
-
-	eleven := b(11) // safe prime: 11 = 2*5+1
+	// safe prime: 7 = 2*3+1
+	// safe prime: 11 = 2*5+1
 
 	// 1*1 = 1  = 1 mod 7 = 1 mod 11
 	// 2*2 = 4  = 4 mod 7 = 4 mod 11
@@ -112,29 +99,6 @@ func TestModSqrt(t *testing.T) {
 	// 8*8 = 64           = 9 mod 11
 	// 9*9 = 81           = 4 mod 11
 	// 10*10 = 100        = 1 mod 11
-
-	assert.ElementsMatch([]*big.Int{one, six}, primeModSqrt(one, seven))
-	assert.ElementsMatch([]*big.Int{three, four}, primeModSqrt(two, seven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(three, seven))
-	assert.ElementsMatch([]*big.Int{two, five}, primeModSqrt(four, seven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(five, seven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(six, seven))
-
-	assert.ElementsMatch([]*big.Int{one, ten}, primeModSqrt(one, eleven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(two, eleven))
-	assert.ElementsMatch([]*big.Int{five, six}, primeModSqrt(three, eleven))
-	assert.ElementsMatch([]*big.Int{two, nine}, primeModSqrt(four, eleven))
-	assert.ElementsMatch([]*big.Int{four, seven}, primeModSqrt(five, eleven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(six, eleven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(seven, eleven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(eight, eleven))
-	assert.ElementsMatch([]*big.Int{three, eight}, primeModSqrt(nine, eleven))
-	assert.ElementsMatch([]*big.Int{}, primeModSqrt(ten, eleven))
-
-	aa, bb := b(0), b(0)
-	b(0).GCD(aa, bb, b(7), b(11))
-	assert.Equal(b(-3), aa)
-	assert.Equal(b(2), bb)
 
 	// p = 7, q = 11, n = 77
 	//
@@ -166,13 +130,20 @@ func TestModSqrt(t *testing.T) {
 	// 26^2 = 676 = 60 mod 77
 	// 40^2 = 1600 = 60 mod 77
 
-	assert.ElementsMatch([]*big.Int{b(37), b(51), b(26), b(40)}, compModSqrt(b(60), b(7), b(11), b(77)))
-
 	// 60^2 = 3600 = 58 mod 77
 	// 37^4 = 58 mod 77
-	assert.Equal(b(37), compMod4thRt(b(58), b(7), b(11), b(77)))
 
 	// 59 = 3 (mod 7) which is not a residue
 	// 59 = 4 (mod 11)
-	assert.Nil(compMod4thRt(b(59), b(7), b(11), b(77)))
+
+	assert.True(isQuadResidueModPrime(b(58), b(7)))
+	assert.True(isQuadResidueModPrime(b(58), b(11)))
+
+	assert.False(isQuadResidueModPrime(b(59), b(7)))
+	assert.True(isQuadResidueModPrime(b(59), b(11)))
+
+	assert.True(isQuadResidueModComposite(b(58), b(7), b(11)))
+	assert.False(isQuadResidueModComposite(b(59), b(7), b(11)))
+
+	assert.Equal(b(37), quadResidueModComposite(b(58), b(7), b(11), b(77), b(60)))
 }
