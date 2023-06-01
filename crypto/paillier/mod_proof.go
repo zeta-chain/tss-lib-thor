@@ -79,9 +79,20 @@ func (pf ModProof) ModVerify(N *big.Int) (bool, error) {
 		return false, fmt.Errorf("mod proof verify: w %d has invalid jacobi symbol %d", pf.W, big.Jacobi(pf.W, N))
 	}
 
+	if !common.Lt(pf.W, N) {
+		return false, fmt.Errorf("mod proof verify: w %d exceeds N %d", pf.W, N)
+	}
+
 	y := ModChallenge(N, pf.W)
 
 	for i, yi := range y {
+		if !common.Lt(pf.X[i], N) {
+			return false, fmt.Errorf("mod proof verify: x_%d %d exceeds N %d", i, pf.X[i], N)
+		}
+		if !common.Lt(pf.Z[i], N) {
+			return false, fmt.Errorf("mod proof verify: z_%d %d exceeds N %d", i, pf.Z[i], N)
+		}
+
 		ziN := new(big.Int).Exp(pf.Z[i], N, N)
 
 		if !common.Eq(ziN, yi) {
