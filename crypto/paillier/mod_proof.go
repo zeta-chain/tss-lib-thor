@@ -64,6 +64,10 @@ func (privateKey *PrivateKey) ModProof() *ModProof {
 // – z_i^N = y_i for every i ∈ [m]
 // – x_i^4 = (-1)^a_i * w^b_i * y_i mod N and a_i, b_i ∈ {0, 1} for every i ∈ [m].
 func (pf ModProof) ModVerify(N *big.Int) (bool, error) {
+	if common.AnyIsNil(pf.W) || common.AnyIsNil(pf.X[:]) || common.AnyIsNil(pf.Z[:]) {
+		return false, fmt.Errorf("mod proof verify: nil inputs in proof")
+	}
+
 	rem2 := new(big.Int).Mod(N, big.NewInt(2))
 	odd := rem2.Int64() == 1
 
