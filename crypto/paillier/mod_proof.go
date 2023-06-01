@@ -78,6 +78,10 @@ func (pf ModProof) ModVerify(N *big.Int) (bool, error) {
 		return false, fmt.Errorf("mod proof verify: modulus %d seems prime", N)
 	}
 
+	if big.Jacobi(pf.W, N) != -1 {
+		return false, fmt.Errorf("mod proof verify: w %d has invalid jacobi symbol %d", pf.W, big.Jacobi(pf.W, N))
+	}
+
 	y := ModChallenge(N, pf.W)
 
 	for i, yi := range y {

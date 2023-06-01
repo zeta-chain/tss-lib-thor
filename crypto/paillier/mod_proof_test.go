@@ -40,6 +40,49 @@ func TestModProofVerifyFail(t *testing.T) {
 	assert.False(t, res, "proof verify result must be false")
 }
 
+func TestModProofVerify_ForgedProof(t *testing.T) {
+	p := big.NewInt(17) // NOT a safe prime and NOT congruent to 3 (mod 4) because 17 mod 4 = 1
+	q := big.NewInt(7)  // safe prime because 2*3+1 and congruent to 3 (mod 4) because 7 mod 4 = 3
+	N := new(big.Int).Mul(p, q)
+
+	// phiN = (p-1)(q-1)
+	pMinus1 := new(big.Int).Sub(p, big.NewInt(1))
+	qMinus1 := new(big.Int).Sub(q, big.NewInt(1))
+	phiN := new(big.Int).Mul(pMinus1, qMinus1)
+
+	// Use w = 0 deliberately.
+	w := big.NewInt(0)
+	// Construct the mod challenge as usual.
+	y := ModChallenge(N, w)
+
+	var x [PARAM_M]*big.Int
+	var a [PARAM_M]bool
+	var b [PARAM_M]bool
+	var z [PARAM_M]*big.Int
+
+	z_0 := new(big.Int).ModInverse(N, phiN)
+
+	for i, y_i := range y {
+		// Use a_i = true, b_i = true, x_i = 0 deliberately.
+		x[i] = big.NewInt(0)
+		a[i] = true
+		b[i] = true
+		z[i] = new(big.Int).Exp(y_i, z_0, N)
+	}
+
+	forgedMoodProof := &ModProof{
+		W: w,
+		X: x,
+		A: a,
+		B: b,
+		Z: z,
+	}
+
+	res, err := forgedMoodProof.ModVerify(N)
+	assert.Error(t, err)
+	assert.False(t, res, "proof verify result must be false")
+}
+
 func TestModSqrt(t *testing.T) {
 	assert := assert.New(t)
 	b := big.NewInt
