@@ -155,10 +155,12 @@ func defineXi(w, y_i, p, q, N, phiN *big.Int) (bool, bool, *big.Int) {
 	panic("no root found") // this should not be reached with n=pq for safe primes p, q
 }
 
+// x is quadratic residue modulo pq if x is a quadratic residue modulo p and q
 func isQuadResidueModComposite(x, p, q *big.Int) bool {
 	return isQuadResidueModPrime(x, p) && isQuadResidueModPrime(x, q)
 }
 
+// x is a quadratic residue modulo p if x^((p-1)/2) = 1
 func isQuadResidueModPrime(x, p *big.Int) bool {
 	ps := new(big.Int).Sub(p, big.NewInt(1))
 	ps = ps.Div(ps, big.NewInt(2))
@@ -166,6 +168,8 @@ func isQuadResidueModPrime(x, p *big.Int) bool {
 	return common.Eq(new(big.Int).Exp(x, ps, p), big.NewInt(1))
 }
 
+// the square root of x can be calculated as x^((phiN+4)/8)
+// apply this twice to get the 4th root
 func quadResidueModComposite(x, p, q, n, phiN *big.Int) *big.Int {
 	e := new(big.Int).Add(phiN, big.NewInt(4))
 	e = e.Div(e, big.NewInt(8))
