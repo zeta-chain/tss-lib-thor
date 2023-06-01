@@ -26,12 +26,9 @@ func (privateKey *PrivateKey) ModProof() *ModProof {
 	phiN := privateKey.PhiN
 	p, q := privateKey.GetPQ()
 
-	w := new(big.Int)
-	for {
+	w := common.GetRandomPositiveInt(N)
+	for big.Jacobi(w, N) != -1 {
 		w = common.GetRandomPositiveInt(N)
-		if big.Jacobi(w, N) == -1 {
-			break
-		}
 	}
 
 	y := ModChallenge(N, w)
