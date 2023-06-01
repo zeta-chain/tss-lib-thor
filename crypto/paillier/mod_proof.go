@@ -118,11 +118,10 @@ func ModChallenge(N, w *big.Int) [PARAM_M]*big.Int {
 // Determine values a_i and b_i so that a valid x_i exists,
 // and return a_i, b_i and x_i.
 func defineXi(w, y_i, p, q, N *big.Int) (bool, bool, *big.Int) {
-	as := [...]bool{false, true}
-	bs := [...]bool{false, true}
+	bools := [...]bool{false, true}
 
-	for _, a := range as {
-		for _, b := range bs {
+	for _, a := range bools {
+		for _, b := range bools {
 			yy_i := new(big.Int).Set(y_i)
 
 			if b {
