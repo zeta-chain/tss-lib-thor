@@ -133,7 +133,7 @@ func (pf FactorProof) FactorVerify(pkN, N, s, t *big.Int) (bool, error) {
 
 func FactorChallenge(N, s, t, pkN, P, Q, A, B, T, sigma *big.Int) *big.Int {
 	q := big.NewInt(1)
-	q = q.Lsh(q, 256) // q = 2^256
+	q = q.Lsh(q, 256)                             // q = 2^256
 	qMinus1 := new(big.Int).Sub(q, big.NewInt(1)) // q-1
 	qDoubleMinus1 := new(big.Int).Add(q, qMinus1) // q+q-1 = 2q-1
 

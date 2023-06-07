@@ -56,7 +56,7 @@ func GetRandomInt(limit *big.Int) *big.Int {
 	// get an integer in [0, 2*limit-1) and subtract limit-1
 	// to get an integer in [-limit+1, limit-1]
 	i := GetRandomPositiveInt(limitDoubleMinus1)
-	i.Sub(i, limitMinus1)
+	i = i.Sub(i, limitMinus1)
 	return i
 }
 
