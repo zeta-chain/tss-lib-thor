@@ -31,6 +31,11 @@ func Lt(x, y *big.Int) bool {
 	return x.Cmp(y) == -1
 }
 
+func Coprime(x, y *big.Int) bool {
+	z := new(big.Int).GCD(nil, nil, x, y)
+	return Eq(z, big.NewInt(1))
+}
+
 // return x + yz
 func AddMul(x, y, z *big.Int) *big.Int {
 	res := new(big.Int)

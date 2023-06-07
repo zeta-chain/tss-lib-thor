@@ -71,6 +71,9 @@ func (p *Proof) Verify(h1, h2, N *big.Int) bool {
 	if h1_.Cmp(h2_) == 0 {
 		return false
 	}
+	if !common.Coprime(h1_, N) || !common.Coprime(h2_, N) {
+		return false
+	}
 	for i := range p.T {
 		a := new(big.Int).Mod(p.T[i], N)
 		if a.Cmp(one) != 1 || a.Cmp(N) != -1 {
