@@ -51,11 +51,6 @@ type (
 		vs            vss.Vs
 		shares        vss.Shares
 		deCommitPolyG cmt.HashDeCommitment
-		Sj            []*big.Int
-		Tj            []*big.Int
-		Si            *big.Int
-		Ti            *big.Int
-		Lambda        *big.Int
 	}
 )
 
@@ -93,8 +88,6 @@ func NewLocalParty(
 	p.temp.kgRound3Messages = make([]tss.ParsedMessage, partyCount)
 	// temp data init
 	p.temp.KGCs = make([]cmt.HashCommitment, partyCount)
-	p.temp.Sj = make([]*big.Int, partyCount)
-	p.temp.Tj = make([]*big.Int, partyCount)
 	return p
 }
 

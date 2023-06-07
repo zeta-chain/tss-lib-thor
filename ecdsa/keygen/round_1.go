@@ -95,15 +95,6 @@ func (round *round1) Start() *tss.Error {
 	dlnProof1 := dlnproof.NewDLNProof(h1i, h2i, alpha, p, q, NTildei)
 	dlnProof2 := dlnproof.NewDLNProof(h2i, h1i, beta, p, q, NTildei)
 
-	N := preParams.PaillierSK.PublicKey.N
-	modN := common.ModInt(N)
-
-	round.temp.Lambda = common.GetRandomPositiveInt(preParams.PaillierSK.PhiN)
-	r := common.GetRandomPositiveRelativelyPrimeInt(N)
-	round.temp.Ti = modN.Mul(r, r)
-	round.temp.Si = modN.Exp(round.temp.Ti, round.temp.Lambda)
-
-	paramProof := preParams.PaillierSK.ParamProof(round.temp.Si, round.temp.Ti, round.temp.Lambda)
 	modProof := preParams.PaillierSK.ModProof()
 
 	// for this P: SAVE
@@ -131,9 +122,6 @@ func (round *round1) Start() *tss.Error {
 			preParams.H2i,
 			dlnProof1,
 			dlnProof2,
-			round.temp.Si,
-			round.temp.Ti,
-			paramProof,
 			modProof,
 		)
 		if err != nil {

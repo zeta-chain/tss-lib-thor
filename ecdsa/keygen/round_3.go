@@ -94,9 +94,9 @@ func (round *round3) Start() *tss.Error {
 			}
 			FacProof := r2msg1.UnmarshalFactorProof()
 			pkN := round.save.PaillierPKs[j].N
-			N := round.save.LocalPreParams.PaillierSK.PublicKey.N
-			s, t := round.temp.Si, round.temp.Ti
-			ok, err = FacProof.FactorVerify(pkN, N, s, t)
+			NTilde := round.save.LocalPreParams.NTildei
+			H1i, H2i := round.save.LocalPreParams.H1i, round.save.LocalPreParams.H2i
+			ok, err = FacProof.FactorVerify(pkN, NTilde, H1i, H2i)
 			if err != nil {
 				ch <- vssOut{err, nil}
 			}

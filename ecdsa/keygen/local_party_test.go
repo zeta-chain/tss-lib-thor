@@ -154,7 +154,7 @@ func TestBadMessageCulprits(t *testing.T) {
 
 	badModProof := new(paillier.ModProof)
 	badModProof.W = zero
-	badMsg, _ := NewKGRound1Message(pIDs[1], zero, &paillier.PublicKey{N: zero}, zero, zero, zero, new(dlnproof.Proof), new(dlnproof.Proof), zero, zero, new(paillier.ParamProof), badModProof)
+	badMsg, _ := NewKGRound1Message(pIDs[1], zero, &paillier.PublicKey{N: zero}, zero, zero, zero, new(dlnproof.Proof), new(dlnproof.Proof), badModProof)
 	ok, err2 := lp.Update(badMsg)
 	t.Log(err2)
 	assert.False(t, ok)

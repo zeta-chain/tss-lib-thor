@@ -23,10 +23,6 @@ type dlnMessage interface {
 	UnmarshalDLNProof2() (*dlnproof.Proof, error)
 }
 
-type paramMessage interface {
-	UnmarshalParamProof() (*paillier.ParamProof, error)
-}
-
 type modMessage interface {
 	UnmarshalModProof() (*paillier.ModProof, error)
 }
@@ -78,25 +74,6 @@ func (pv *ProofVerifier) VerifyDLNProof2(
 		}
 
 		onDone(dlnProof.Verify(h1, h2, n))
-	}()
-}
-
-func (pv *ProofVerifier) VerifyParamProof(
-	m paramMessage,
-	N, s, t *big.Int,
-	onDone func(bool),
-) {
-	pv.semaphore <- struct{}{}
-	go func() {
-		defer func() { <-pv.semaphore }()
-
-		prmProof, err := m.UnmarshalParamProof()
-		if err != nil {
-			onDone(false)
-			return
-		}
-
-		onDone(prmProof.ParamVerify(N, s, t))
 	}()
 }
 

@@ -35,10 +35,7 @@ message KGRound1Message {
     bytes h2 = 5;
     DLNProof dlnproof_1 = 8;
     DLNProof dlnproof_2 = 9;
-    bytes s = 10;
-    bytes t = 11;
-    ParamProof prmproof = 12;
-    ModProof modproof = 13;
+    ModProof modproof = 10;
 }
 
 /*

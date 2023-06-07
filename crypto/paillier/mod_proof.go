@@ -7,6 +7,10 @@ import (
 	"github.com/bnb-chain/tss-lib/common"
 )
 
+const (
+	PARAM_M = 80 // ZKP iterations
+)
+
 type (
 	ModProof struct {
 		W *big.Int

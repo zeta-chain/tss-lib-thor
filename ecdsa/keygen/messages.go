@@ -38,8 +38,6 @@ func NewKGRound1Message(
 	paillierPK *paillier.PublicKey,
 	nTildeI, h1I, h2I *big.Int,
 	dlnProof1, dlnProof2 *dlnproof.Proof,
-	si, ti *big.Int,
-	paramProof *paillier.ParamProof,
 	modProof *paillier.ModProof,
 ) (tss.ParsedMessage, error) {
 	meta := tss.MessageRouting{
@@ -59,12 +57,6 @@ func NewKGRound1Message(
 		Dlnproof_2: &KGRound1Message_DLNProof{
 			Alpha: common.BigIntsToBytes(dlnProof2.Alpha[:]),
 			T:     common.BigIntsToBytes(dlnProof2.T[:]),
-		},
-		S: si.Bytes(),
-		T: ti.Bytes(),
-		Prmproof: &KGRound1Message_ParamProof{
-			A: common.BigIntsToBytes(paramProof.A[:]),
-			Z: common.BigIntsToBytes(paramProof.Z[:]),
 		},
 		Modproof: &KGRound1Message_ModProof{
 			W: modProof.W.Bytes(),
@@ -87,9 +79,6 @@ func (m *KGRound1Message) ValidateBasic() bool {
 		common.NonEmptyBytes(m.GetH2()) &&
 		m.GetDlnproof_1().ValidateBasic() &&
 		m.GetDlnproof_2().ValidateBasic() &&
-		common.NonEmptyBytes(m.GetS()) &&
-		common.NonEmptyBytes(m.GetT()) &&
-		m.GetPrmproof().ValidateBasic() &&
 		m.GetModproof().ValidateBasic()
 }
 
@@ -123,19 +112,6 @@ func (m *KGRound1Message) UnmarshalDLNProof2() (*dlnproof.Proof, error) {
 	return dlnproof.UnmarshalDLNProof(p.GetAlpha(), p.GetT())
 }
 
-func (m *KGRound1Message) UnmarshalS() *big.Int {
-	return new(big.Int).SetBytes(m.GetS())
-}
-
-func (m *KGRound1Message) UnmarshalT() *big.Int {
-	return new(big.Int).SetBytes(m.GetT())
-}
-
-func (m *KGRound1Message) UnmarshalParamProof() (*paillier.ParamProof, error) {
-	p := m.GetPrmproof()
-	return paillier.UnmarshalParamProof(p.GetA(), p.GetZ())
-}
-
 func (m *KGRound1Message) UnmarshalModProof() (*paillier.ModProof, error) {
 	p := m.GetModproof()
 	return paillier.UnmarshalModProof(p.GetW(), p.GetX(), p.GetA(), p.GetB(), p.GetZ())
@@ -145,12 +121,6 @@ func (p *KGRound1Message_DLNProof) ValidateBasic() bool {
 	return p != nil &&
 		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
 		common.NonEmptyMultiBytes(p.GetT(), dlnproof.Iterations)
-}
-
-func (p *KGRound1Message_ParamProof) ValidateBasic() bool {
-	return p != nil &&
-		common.NonEmptyMultiBytes(p.GetA(), paillier.PARAM_M) &&
-		common.NonEmptyMultiBytes(p.GetZ(), paillier.PARAM_M)
 }
 
 func (p *KGRound1Message_ModProof) ValidateBasic() bool {
