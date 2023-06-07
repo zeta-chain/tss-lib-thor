@@ -51,13 +51,12 @@ func GetRandomPositiveInt(lessThan *big.Int) *big.Int {
 
 // Sample an integer in range (-limit, limit)
 func GetRandomInt(limit *big.Int) *big.Int {
-	// get the absolute value
-	i := GetRandomPositiveInt(limit)
-	// get one bit for the sign; 1 means negative, 0 means positive
-	negative := MustGetRandomInt(1)
-	if Eq(negative, big.NewInt(1)) {
-		i.Neg(i)
-	}
+	limitMinus1 := new(big.Int).Sub(limit, big.NewInt(1))
+	limitDoubleMinus1 := new(big.Int).Add(limit, limitMinus1)
+	// get an integer in [0, 2*limit-1) and subtract limit-1
+	// to get an integer in [-limit+1, limit-1]
+	i := GetRandomPositiveInt(limitDoubleMinus1)
+	i.Sub(i, limitMinus1)
 	return i
 }
 
