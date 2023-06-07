@@ -25,6 +25,7 @@ type dlnMessage interface {
 
 type modMessage interface {
 	UnmarshalModProof() (*paillier.ModProof, error)
+	UnmarshalModProofTilde() (*paillier.ModProof, error)
 }
 
 func NewProofVerifier(concurrency int) *ProofVerifier {
@@ -87,6 +88,30 @@ func (pv *ProofVerifier) VerifyModProof(
 		defer func() { <-pv.semaphore }()
 
 		modProof, err := m.UnmarshalModProof()
+		if err != nil {
+			onDone(false)
+			return
+		}
+
+		ok, err2 := modProof.ModVerify(N)
+		if err2 != nil {
+			onDone(false)
+			return
+		}
+		onDone(ok)
+	}()
+}
+
+func (pv *ProofVerifier) VerifyModProofTilde(
+	m modMessage,
+	N *big.Int,
+	onDone func(bool),
+) {
+	pv.semaphore <- struct{}{}
+	go func() {
+		defer func() { <-pv.semaphore }()
+
+		modProof, err := m.UnmarshalModProofTilde()
 		if err != nil {
 			onDone(false)
 			return

@@ -38,7 +38,7 @@ func NewKGRound1Message(
 	paillierPK *paillier.PublicKey,
 	nTildeI, h1I, h2I *big.Int,
 	dlnProof1, dlnProof2 *dlnproof.Proof,
-	modProof *paillier.ModProof,
+	modProof, modProofTilde *paillier.ModProof,
 ) (tss.ParsedMessage, error) {
 	meta := tss.MessageRouting{
 		From:        from,
@@ -65,6 +65,13 @@ func NewKGRound1Message(
 			B: modProof.B[:],
 			Z: common.BigIntsToBytes(modProof.Z[:]),
 		},
+		ModproofTilde: &KGRound1Message_ModProof{
+			W: modProofTilde.W.Bytes(),
+			X: common.BigIntsToBytes(modProofTilde.X[:]),
+			A: modProofTilde.A[:],
+			B: modProofTilde.B[:],
+			Z: common.BigIntsToBytes(modProofTilde.Z[:]),
+		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg), nil
@@ -79,7 +86,8 @@ func (m *KGRound1Message) ValidateBasic() bool {
 		common.NonEmptyBytes(m.GetH2()) &&
 		m.GetDlnproof_1().ValidateBasic() &&
 		m.GetDlnproof_2().ValidateBasic() &&
-		m.GetModproof().ValidateBasic()
+		m.GetModproof().ValidateBasic() &&
+		m.GetModproofTilde().ValidateBasic()
 }
 
 func (m *KGRound1Message) UnmarshalCommitment() *big.Int {
@@ -117,6 +125,11 @@ func (m *KGRound1Message) UnmarshalModProof() (*paillier.ModProof, error) {
 	return paillier.UnmarshalModProof(p.GetW(), p.GetX(), p.GetA(), p.GetB(), p.GetZ())
 }
 
+func (m *KGRound1Message) UnmarshalModProofTilde() (*paillier.ModProof, error) {
+	p := m.GetModproofTilde()
+	return paillier.UnmarshalModProof(p.GetW(), p.GetX(), p.GetA(), p.GetB(), p.GetZ())
+}
+
 func (p *KGRound1Message_DLNProof) ValidateBasic() bool {
 	return p != nil &&
 		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
@@ -137,7 +150,7 @@ func (p *KGRound1Message_ModProof) ValidateBasic() bool {
 func NewKGRound2Message1(
 	to, from *tss.PartyID,
 	share *vss.Share,
-	proof *paillier.FactorProof,
+	proof, proofTilde *paillier.FactorProof,
 ) tss.ParsedMessage {
 	meta := tss.MessageRouting{
 		From:        from,
@@ -163,9 +176,29 @@ func NewKGRound2Message1(
 		// The proof is nil when creating the self-message in round 2.
 		facProof = nil
 	}
+	var facProofTilde *KGRound2Message1_FactorProof
+	if proofTilde != nil {
+		facProofTilde = &KGRound2Message1_FactorProof{
+			P:     common.MarshalSigned(proofTilde.P),
+			Q:     common.MarshalSigned(proofTilde.Q),
+			A:     common.MarshalSigned(proofTilde.A),
+			B:     common.MarshalSigned(proofTilde.B),
+			T:     common.MarshalSigned(proofTilde.T),
+			Sigma: common.MarshalSigned(proofTilde.Sigma),
+			Z1:    common.MarshalSigned(proofTilde.Z1),
+			Z2:    common.MarshalSigned(proofTilde.Z2),
+			W1:    common.MarshalSigned(proofTilde.W1),
+			W2:    common.MarshalSigned(proofTilde.W2),
+			V:     common.MarshalSigned(proofTilde.V),
+		}
+	} else {
+		// The proof is nil when creating the self-message in round 2.
+		facProofTilde = nil
+	}
 	content := &KGRound2Message1{
-		Share:    share.Share.Bytes(),
-		Facproof: facProof,
+		Share:         share.Share.Bytes(),
+		Facproof:      facProof,
+		FacproofTilde: facProofTilde,
 	}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg)
@@ -174,7 +207,8 @@ func NewKGRound2Message1(
 func (m *KGRound2Message1) ValidateBasic() bool {
 	return m != nil &&
 		common.NonEmptyBytes(m.GetShare()) &&
-		m.GetFacproof().ValidateBasic()
+		m.GetFacproof().ValidateBasic() &&
+		m.GetFacproofTilde().ValidateBasic()
 }
 
 func (m *KGRound2Message1) UnmarshalShare() *big.Int {
@@ -183,6 +217,23 @@ func (m *KGRound2Message1) UnmarshalShare() *big.Int {
 
 func (m *KGRound2Message1) UnmarshalFactorProof() *paillier.FactorProof {
 	proof := m.GetFacproof()
+	return &paillier.FactorProof{
+		P:     common.UnmarshalSigned(proof.P),
+		Q:     common.UnmarshalSigned(proof.Q),
+		A:     common.UnmarshalSigned(proof.A),
+		B:     common.UnmarshalSigned(proof.B),
+		T:     common.UnmarshalSigned(proof.T),
+		Sigma: common.UnmarshalSigned(proof.Sigma),
+		Z1:    common.UnmarshalSigned(proof.Z1),
+		Z2:    common.UnmarshalSigned(proof.Z2),
+		W1:    common.UnmarshalSigned(proof.W1),
+		W2:    common.UnmarshalSigned(proof.W2),
+		V:     common.UnmarshalSigned(proof.V),
+	}
+}
+
+func (m *KGRound2Message1) UnmarshalFactorProofTilde() *paillier.FactorProof {
+	proof := m.GetFacproofTilde()
 	return &paillier.FactorProof{
 		P:     common.UnmarshalSigned(proof.P),
 		Q:     common.UnmarshalSigned(proof.Q),

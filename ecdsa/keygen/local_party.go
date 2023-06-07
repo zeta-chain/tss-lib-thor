@@ -13,6 +13,7 @@ import (
 
 	"github.com/bnb-chain/tss-lib/common"
 	cmt "github.com/bnb-chain/tss-lib/crypto/commitments"
+	"github.com/bnb-chain/tss-lib/crypto/paillier"
 	"github.com/bnb-chain/tss-lib/crypto/vss"
 	"github.com/bnb-chain/tss-lib/tss"
 )
@@ -51,6 +52,7 @@ type (
 		vs            vss.Vs
 		shares        vss.Shares
 		deCommitPolyG cmt.HashDeCommitment
+		skTilde       *paillier.PrivateKey
 	}
 )
 

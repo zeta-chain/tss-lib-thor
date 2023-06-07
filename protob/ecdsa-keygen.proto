@@ -36,6 +36,7 @@ message KGRound1Message {
     DLNProof dlnproof_1 = 8;
     DLNProof dlnproof_2 = 9;
     ModProof modproof = 10;
+    ModProof modproof_tilde = 11;
 }
 
 /*
@@ -57,6 +58,7 @@ message KGRound2Message1 {
     }
     bytes share = 1;
     FactorProof facproof = 2;
+    FactorProof facproof_tilde = 3;
 }
 
 /*
