@@ -16,10 +16,6 @@ message KGRound1Message {
         repeated bytes alpha = 1;
         repeated bytes t = 2;
     }
-    message ParamProof {
-        repeated bytes a = 1;
-        repeated bytes z = 2;
-    }
     message ModProof {
         bytes w = 1;
         repeated bytes x = 2;
