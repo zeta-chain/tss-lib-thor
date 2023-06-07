@@ -132,23 +132,19 @@ func (pf FactorProof) FactorVerify(pkN, N, s, t *big.Int) (bool, error) {
 }
 
 func FactorChallenge(N, s, t, pkN, P, Q, A, B, T, sigma *big.Int) *big.Int {
+	q := big.NewInt(1)
+	q = q.Lsh(q, 256) // q = 2^256
+	qMinus1 := new(big.Int).Sub(q, big.NewInt(1)) // q-1
+	qDoubleMinus1 := new(big.Int).Add(q, qMinus1) // q+q-1 = 2q-1
+
 	// 2. Verifier replies with e <- +-q
 	// The q here is not the secret factor q, but rather the order of secp256k1,
-	// or in practical terms 2^256.
-	// common.SHA512_256i produces a 256-bit integer,
-	// to which we then add the sign.
-	h := common.SHA512_256i(N, s, t, pkN, P, Q, A, B, T, sigma)
-
-	// calculate the sign bit
-	// FIXME: ugly hack
-	signInt := new(big.Int).SetBytes([]byte("factor proof sign bit"))
-	sign := common.SHA512_256i(signInt, N, s, t, pkN, P, Q, A, B, T, sigma)
-
-	sign.Mod(sign, big.NewInt(2))
-
-	if common.Eq(sign, big.NewInt(1)) {
-		h.Neg(h)
-	}
+	// or in practical terms 2^256 as the value h does not involve elliptic curve operations
+	// and q acts as a security parameter only.
+	//
+	// Calculate +-q by taking HashToN(2*q-1, ...) - q + 1
+	h := common.HashToN(qDoubleMinus1, N, s, t, pkN, P, Q, A, B, T, sigma)
+	h.Sub(h, qMinus1) // h - (q-1) = h - q + 1
 
 	return h
 }
