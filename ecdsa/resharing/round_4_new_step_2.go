@@ -42,7 +42,7 @@ func (round *round4) Start() *tss.Error {
 		round.PartyID(),
 		round.Concurrency(),
 	)
-	dlnVerifier := keygen.NewProofVerifier(round.Concurrency())
+	verifier := keygen.NewProofVerifier(round.Concurrency())
 
 	Pi := round.PartyID()
 	i := Pi.Index
@@ -52,6 +52,8 @@ func (round *round4) Start() *tss.Error {
 	paiProofCulprits := make([]*tss.PartyID, len(round.temp.dgRound2Message1s)) // who caused the error(s)
 	dlnProof1FailCulprits := make([]*tss.PartyID, len(round.temp.dgRound2Message1s))
 	dlnProof2FailCulprits := make([]*tss.PartyID, len(round.temp.dgRound2Message1s))
+	modProofFailCulprits := make([]*tss.PartyID, len(round.temp.dgRound2Message1s))
+	modProofTildeFailCulprits := make([]*tss.PartyID, len(round.temp.dgRound2Message1s))
 	wg := new(sync.WaitGroup)
 	for j, msg := range round.temp.dgRound2Message1s {
 		r2msg1 := msg.Content().(*DGRound2Message1)
@@ -71,7 +73,7 @@ func (round *round4) Start() *tss.Error {
 			return round.WrapError(errors.New("this h2j was already used by another party"), msg.GetFrom())
 		}
 		h1H2Map[h1JHex], h1H2Map[h2JHex] = struct{}{}, struct{}{}
-		wg.Add(3)
+		wg.Add(5)
 		go func(j int, msg tss.ParsedMessage, r2msg1 *DGRound2Message1) {
 			if ok, err := r2msg1.UnmarshalPaillierProof().Verify(paiPK.N, msg.GetFrom().KeyInt(), round.save.ECDSAPub); err != nil || !ok {
 				paiProofCulprits[j] = msg.GetFrom()
@@ -81,17 +83,31 @@ func (round *round4) Start() *tss.Error {
 		}(j, msg, r2msg1)
 		_j := j
 		_msg := msg
-		dlnVerifier.VerifyDLNProof1(r2msg1, H1j, H2j, NTildej, func(isValid bool) {
+		verifier.VerifyDLNProof1(r2msg1, H1j, H2j, NTildej, func(isValid bool) {
 			if !isValid {
 				dlnProof1FailCulprits[_j] = _msg.GetFrom()
 				common.Logger.Warningf("dln proof 1 verify failed for party %s", _msg.GetFrom())
 			}
 			wg.Done()
 		})
-		dlnVerifier.VerifyDLNProof2(r2msg1, H2j, H1j, NTildej, func(isValid bool) {
+		verifier.VerifyDLNProof2(r2msg1, H2j, H1j, NTildej, func(isValid bool) {
 			if !isValid {
 				dlnProof2FailCulprits[_j] = _msg.GetFrom()
 				common.Logger.Warningf("dln proof 2 verify failed for party %s", _msg.GetFrom())
+			}
+			wg.Done()
+		})
+		verifier.VerifyModProof(r2msg1, paiPK.N, func(isValid bool) {
+			if !isValid {
+				modProofFailCulprits[_j] = _msg.GetFrom()
+				common.Logger.Warningf("mod proof verify failed for party %s", _msg.GetFrom())
+			}
+			wg.Done()
+		})
+		verifier.VerifyModProofTilde(r2msg1, NTildej, func(isValid bool) {
+			if !isValid {
+				modProofFailCulprits[_j] = _msg.GetFrom()
+				common.Logger.Warningf("mod proof tilde verify failed for party %s", _msg.GetFrom())
 			}
 			wg.Done()
 		})
@@ -100,6 +116,11 @@ func (round *round4) Start() *tss.Error {
 	for _, culprit := range append(append(paiProofCulprits, dlnProof1FailCulprits...), dlnProof2FailCulprits...) {
 		if culprit != nil {
 			return round.WrapError(errors.New("dln proof verification failed"), culprit)
+		}
+	}
+	for _, culprit := range append(modProofFailCulprits, modProofTildeFailCulprits...) {
+		if culprit != nil {
+			return round.WrapError(errors.New("mod proof verification failed"), culprit)
 		}
 	}
 	// save NTilde_j, h1_j, h2_j received in NewCommitteeStep1 here
