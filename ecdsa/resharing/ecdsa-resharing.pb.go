@@ -337,15 +337,18 @@ func (x *DGRound3Message2) GetVDecommitment() [][]byte {
 	return nil
 }
 
-// The Round 4 "ACK" is broadcast to peers of the Old and New Committees from the New Committee in this message.
-type DGRound4Message struct {
+// The Round 4 data is sent to other peers of the New Committee in this message.
+type DGRound4Message1 struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
+
+	Facproof      *DGRound4Message1_FactorProof `protobuf:"bytes,1,opt,name=facproof,proto3" json:"facproof,omitempty"`
+	FacproofTilde *DGRound4Message1_FactorProof `protobuf:"bytes,2,opt,name=facproof_tilde,json=facproofTilde,proto3" json:"facproof_tilde,omitempty"`
 }
 
-func (x *DGRound4Message) Reset() {
-	*x = DGRound4Message{}
+func (x *DGRound4Message1) Reset() {
+	*x = DGRound4Message1{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_protob_ecdsa_resharing_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -353,13 +356,13 @@ func (x *DGRound4Message) Reset() {
 	}
 }
 
-func (x *DGRound4Message) String() string {
+func (x *DGRound4Message1) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DGRound4Message) ProtoMessage() {}
+func (*DGRound4Message1) ProtoMessage() {}
 
-func (x *DGRound4Message) ProtoReflect() protoreflect.Message {
+func (x *DGRound4Message1) ProtoReflect() protoreflect.Message {
 	mi := &file_protob_ecdsa_resharing_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -371,9 +374,62 @@ func (x *DGRound4Message) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DGRound4Message.ProtoReflect.Descriptor instead.
-func (*DGRound4Message) Descriptor() ([]byte, []int) {
+// Deprecated: Use DGRound4Message1.ProtoReflect.Descriptor instead.
+func (*DGRound4Message1) Descriptor() ([]byte, []int) {
 	return file_protob_ecdsa_resharing_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *DGRound4Message1) GetFacproof() *DGRound4Message1_FactorProof {
+	if x != nil {
+		return x.Facproof
+	}
+	return nil
+}
+
+func (x *DGRound4Message1) GetFacproofTilde() *DGRound4Message1_FactorProof {
+	if x != nil {
+		return x.FacproofTilde
+	}
+	return nil
+}
+
+// The Round 4 "ACK" is broadcast to peers of the Old and New Committees from the New Committee in this message.
+type DGRound4Message2 struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DGRound4Message2) Reset() {
+	*x = DGRound4Message2{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_protob_ecdsa_resharing_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DGRound4Message2) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DGRound4Message2) ProtoMessage() {}
+
+func (x *DGRound4Message2) ProtoReflect() protoreflect.Message {
+	mi := &file_protob_ecdsa_resharing_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DGRound4Message2.ProtoReflect.Descriptor instead.
+func (*DGRound4Message2) Descriptor() ([]byte, []int) {
+	return file_protob_ecdsa_resharing_proto_rawDescGZIP(), []int{6}
 }
 
 type DGRound2Message1_DLNProof struct {
@@ -388,7 +444,7 @@ type DGRound2Message1_DLNProof struct {
 func (x *DGRound2Message1_DLNProof) Reset() {
 	*x = DGRound2Message1_DLNProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_protob_ecdsa_resharing_proto_msgTypes[6]
+		mi := &file_protob_ecdsa_resharing_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -401,7 +457,7 @@ func (x *DGRound2Message1_DLNProof) String() string {
 func (*DGRound2Message1_DLNProof) ProtoMessage() {}
 
 func (x *DGRound2Message1_DLNProof) ProtoReflect() protoreflect.Message {
-	mi := &file_protob_ecdsa_resharing_proto_msgTypes[6]
+	mi := &file_protob_ecdsa_resharing_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +502,7 @@ type DGRound2Message1_ModProof struct {
 func (x *DGRound2Message1_ModProof) Reset() {
 	*x = DGRound2Message1_ModProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_protob_ecdsa_resharing_proto_msgTypes[7]
+		mi := &file_protob_ecdsa_resharing_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -459,7 +515,7 @@ func (x *DGRound2Message1_ModProof) String() string {
 func (*DGRound2Message1_ModProof) ProtoMessage() {}
 
 func (x *DGRound2Message1_ModProof) ProtoReflect() protoreflect.Message {
-	mi := &file_protob_ecdsa_resharing_proto_msgTypes[7]
+	mi := &file_protob_ecdsa_resharing_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,6 +562,133 @@ func (x *DGRound2Message1_ModProof) GetB() []bool {
 func (x *DGRound2Message1_ModProof) GetZ() [][]byte {
 	if x != nil {
 		return x.Z
+	}
+	return nil
+}
+
+type DGRound4Message1_FactorProof struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	P     []byte `protobuf:"bytes,1,opt,name=p,proto3" json:"p,omitempty"`
+	Q     []byte `protobuf:"bytes,2,opt,name=q,proto3" json:"q,omitempty"`
+	A     []byte `protobuf:"bytes,3,opt,name=a,proto3" json:"a,omitempty"`
+	B     []byte `protobuf:"bytes,4,opt,name=b,proto3" json:"b,omitempty"`
+	T     []byte `protobuf:"bytes,5,opt,name=t,proto3" json:"t,omitempty"`
+	Sigma []byte `protobuf:"bytes,6,opt,name=sigma,proto3" json:"sigma,omitempty"`
+	Z1    []byte `protobuf:"bytes,7,opt,name=z1,proto3" json:"z1,omitempty"`
+	Z2    []byte `protobuf:"bytes,8,opt,name=z2,proto3" json:"z2,omitempty"`
+	W1    []byte `protobuf:"bytes,9,opt,name=w1,proto3" json:"w1,omitempty"`
+	W2    []byte `protobuf:"bytes,10,opt,name=w2,proto3" json:"w2,omitempty"`
+	V     []byte `protobuf:"bytes,11,opt,name=v,proto3" json:"v,omitempty"`
+}
+
+func (x *DGRound4Message1_FactorProof) Reset() {
+	*x = DGRound4Message1_FactorProof{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_protob_ecdsa_resharing_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DGRound4Message1_FactorProof) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DGRound4Message1_FactorProof) ProtoMessage() {}
+
+func (x *DGRound4Message1_FactorProof) ProtoReflect() protoreflect.Message {
+	mi := &file_protob_ecdsa_resharing_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DGRound4Message1_FactorProof.ProtoReflect.Descriptor instead.
+func (*DGRound4Message1_FactorProof) Descriptor() ([]byte, []int) {
+	return file_protob_ecdsa_resharing_proto_rawDescGZIP(), []int{5, 0}
+}
+
+func (x *DGRound4Message1_FactorProof) GetP() []byte {
+	if x != nil {
+		return x.P
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetQ() []byte {
+	if x != nil {
+		return x.Q
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetA() []byte {
+	if x != nil {
+		return x.A
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetB() []byte {
+	if x != nil {
+		return x.B
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetT() []byte {
+	if x != nil {
+		return x.T
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetSigma() []byte {
+	if x != nil {
+		return x.Sigma
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetZ1() []byte {
+	if x != nil {
+		return x.Z1
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetZ2() []byte {
+	if x != nil {
+		return x.Z2
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetW1() []byte {
+	if x != nil {
+		return x.W1
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetW2() []byte {
+	if x != nil {
+		return x.W2
+	}
+	return nil
+}
+
+func (x *DGRound4Message1_FactorProof) GetV() []byte {
+	if x != nil {
+		return x.V
 	}
 	return nil
 }
@@ -572,10 +755,35 @@ var file_protob_ecdsa_resharing_proto_rawDesc = []byte{
 	0x65, 0x22, 0x39, 0x0a, 0x10, 0x44, 0x47, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x33, 0x4d, 0x65, 0x73,
 	0x73, 0x61, 0x67, 0x65, 0x32, 0x12, 0x25, 0x0a, 0x0e, 0x76, 0x5f, 0x64, 0x65, 0x63, 0x6f, 0x6d,
 	0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0c, 0x52, 0x0d, 0x76,
-	0x44, 0x65, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x22, 0x11, 0x0a, 0x0f,
-	0x44, 0x47, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x34, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x42,
-	0x11, 0x5a, 0x0f, 0x65, 0x63, 0x64, 0x73, 0x61, 0x2f, 0x72, 0x65, 0x73, 0x68, 0x61, 0x72, 0x69,
-	0x6e, 0x67, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x44, 0x65, 0x63, 0x6f, 0x6d, 0x6d, 0x69, 0x74, 0x6d, 0x65, 0x6e, 0x74, 0x22, 0x8b, 0x03, 0x0a,
+	0x10, 0x44, 0x47, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x34, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x31, 0x12, 0x58, 0x0a, 0x08, 0x66, 0x61, 0x63, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x3c, 0x2e, 0x62, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2e, 0x74, 0x73,
+	0x73, 0x6c, 0x69, 0x62, 0x2e, 0x65, 0x63, 0x64, 0x73, 0x61, 0x2e, 0x72, 0x65, 0x73, 0x68, 0x61,
+	0x72, 0x69, 0x6e, 0x67, 0x2e, 0x44, 0x47, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x34, 0x4d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x31, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x50, 0x72, 0x6f, 0x6f,
+	0x66, 0x52, 0x08, 0x66, 0x61, 0x63, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x12, 0x63, 0x0a, 0x0e, 0x66,
+	0x61, 0x63, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x5f, 0x74, 0x69, 0x6c, 0x64, 0x65, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x3c, 0x2e, 0x62, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2e, 0x74, 0x73,
+	0x73, 0x6c, 0x69, 0x62, 0x2e, 0x65, 0x63, 0x64, 0x73, 0x61, 0x2e, 0x72, 0x65, 0x73, 0x68, 0x61,
+	0x72, 0x69, 0x6e, 0x67, 0x2e, 0x44, 0x47, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x34, 0x4d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x31, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x50, 0x72, 0x6f, 0x6f,
+	0x66, 0x52, 0x0d, 0x66, 0x61, 0x63, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x54, 0x69, 0x6c, 0x64, 0x65,
+	0x1a, 0xb7, 0x01, 0x0a, 0x0b, 0x46, 0x61, 0x63, 0x74, 0x6f, 0x72, 0x50, 0x72, 0x6f, 0x6f, 0x66,
+	0x12, 0x0c, 0x0a, 0x01, 0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x01, 0x70, 0x12, 0x0c,
+	0x0a, 0x01, 0x71, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x01, 0x71, 0x12, 0x0c, 0x0a, 0x01,
+	0x61, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x01, 0x61, 0x12, 0x0c, 0x0a, 0x01, 0x62, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x01, 0x62, 0x12, 0x0c, 0x0a, 0x01, 0x74, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x0c, 0x52, 0x01, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x73, 0x69, 0x67, 0x6d, 0x61, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x73, 0x69, 0x67, 0x6d, 0x61, 0x12, 0x0e, 0x0a, 0x02,
+	0x7a, 0x31, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x02, 0x7a, 0x31, 0x12, 0x0e, 0x0a, 0x02,
+	0x7a, 0x32, 0x18, 0x08, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x02, 0x7a, 0x32, 0x12, 0x0e, 0x0a, 0x02,
+	0x77, 0x31, 0x18, 0x09, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x02, 0x77, 0x31, 0x12, 0x0e, 0x0a, 0x02,
+	0x77, 0x32, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x02, 0x77, 0x32, 0x12, 0x0c, 0x0a, 0x01,
+	0x76, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x01, 0x76, 0x22, 0x12, 0x0a, 0x10, 0x44, 0x47,
+	0x52, 0x6f, 0x75, 0x6e, 0x64, 0x34, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x32, 0x42, 0x11,
+	0x5a, 0x0f, 0x65, 0x63, 0x64, 0x73, 0x61, 0x2f, 0x72, 0x65, 0x73, 0x68, 0x61, 0x72, 0x69, 0x6e,
+	0x67, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -590,27 +798,31 @@ func file_protob_ecdsa_resharing_proto_rawDescGZIP() []byte {
 	return file_protob_ecdsa_resharing_proto_rawDescData
 }
 
-var file_protob_ecdsa_resharing_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_protob_ecdsa_resharing_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_protob_ecdsa_resharing_proto_goTypes = []interface{}{
-	(*DGRound1Message)(nil),           // 0: binance.tsslib.ecdsa.resharing.DGRound1Message
-	(*DGRound2Message1)(nil),          // 1: binance.tsslib.ecdsa.resharing.DGRound2Message1
-	(*DGRound2Message2)(nil),          // 2: binance.tsslib.ecdsa.resharing.DGRound2Message2
-	(*DGRound3Message1)(nil),          // 3: binance.tsslib.ecdsa.resharing.DGRound3Message1
-	(*DGRound3Message2)(nil),          // 4: binance.tsslib.ecdsa.resharing.DGRound3Message2
-	(*DGRound4Message)(nil),           // 5: binance.tsslib.ecdsa.resharing.DGRound4Message
-	(*DGRound2Message1_DLNProof)(nil), // 6: binance.tsslib.ecdsa.resharing.DGRound2Message1.DLNProof
-	(*DGRound2Message1_ModProof)(nil), // 7: binance.tsslib.ecdsa.resharing.DGRound2Message1.ModProof
+	(*DGRound1Message)(nil),              // 0: binance.tsslib.ecdsa.resharing.DGRound1Message
+	(*DGRound2Message1)(nil),             // 1: binance.tsslib.ecdsa.resharing.DGRound2Message1
+	(*DGRound2Message2)(nil),             // 2: binance.tsslib.ecdsa.resharing.DGRound2Message2
+	(*DGRound3Message1)(nil),             // 3: binance.tsslib.ecdsa.resharing.DGRound3Message1
+	(*DGRound3Message2)(nil),             // 4: binance.tsslib.ecdsa.resharing.DGRound3Message2
+	(*DGRound4Message1)(nil),             // 5: binance.tsslib.ecdsa.resharing.DGRound4Message1
+	(*DGRound4Message2)(nil),             // 6: binance.tsslib.ecdsa.resharing.DGRound4Message2
+	(*DGRound2Message1_DLNProof)(nil),    // 7: binance.tsslib.ecdsa.resharing.DGRound2Message1.DLNProof
+	(*DGRound2Message1_ModProof)(nil),    // 8: binance.tsslib.ecdsa.resharing.DGRound2Message1.ModProof
+	(*DGRound4Message1_FactorProof)(nil), // 9: binance.tsslib.ecdsa.resharing.DGRound4Message1.FactorProof
 }
 var file_protob_ecdsa_resharing_proto_depIdxs = []int32{
-	6, // 0: binance.tsslib.ecdsa.resharing.DGRound2Message1.dlnproof_1:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.DLNProof
-	6, // 1: binance.tsslib.ecdsa.resharing.DGRound2Message1.dlnproof_2:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.DLNProof
-	7, // 2: binance.tsslib.ecdsa.resharing.DGRound2Message1.modproof:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.ModProof
-	7, // 3: binance.tsslib.ecdsa.resharing.DGRound2Message1.modproof_tilde:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.ModProof
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	7, // 0: binance.tsslib.ecdsa.resharing.DGRound2Message1.dlnproof_1:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.DLNProof
+	7, // 1: binance.tsslib.ecdsa.resharing.DGRound2Message1.dlnproof_2:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.DLNProof
+	8, // 2: binance.tsslib.ecdsa.resharing.DGRound2Message1.modproof:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.ModProof
+	8, // 3: binance.tsslib.ecdsa.resharing.DGRound2Message1.modproof_tilde:type_name -> binance.tsslib.ecdsa.resharing.DGRound2Message1.ModProof
+	9, // 4: binance.tsslib.ecdsa.resharing.DGRound4Message1.facproof:type_name -> binance.tsslib.ecdsa.resharing.DGRound4Message1.FactorProof
+	9, // 5: binance.tsslib.ecdsa.resharing.DGRound4Message1.facproof_tilde:type_name -> binance.tsslib.ecdsa.resharing.DGRound4Message1.FactorProof
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_protob_ecdsa_resharing_proto_init() }
@@ -680,7 +892,7 @@ func file_protob_ecdsa_resharing_proto_init() {
 			}
 		}
 		file_protob_ecdsa_resharing_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DGRound4Message); i {
+			switch v := v.(*DGRound4Message1); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -692,7 +904,7 @@ func file_protob_ecdsa_resharing_proto_init() {
 			}
 		}
 		file_protob_ecdsa_resharing_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DGRound2Message1_DLNProof); i {
+			switch v := v.(*DGRound4Message2); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -704,7 +916,31 @@ func file_protob_ecdsa_resharing_proto_init() {
 			}
 		}
 		file_protob_ecdsa_resharing_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DGRound2Message1_DLNProof); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_protob_ecdsa_resharing_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*DGRound2Message1_ModProof); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_protob_ecdsa_resharing_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DGRound4Message1_FactorProof); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -722,7 +958,7 @@ func file_protob_ecdsa_resharing_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_protob_ecdsa_resharing_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

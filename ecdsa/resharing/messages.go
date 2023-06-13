@@ -182,7 +182,6 @@ func (m *DGRound2Message1) UnmarshalModProofTilde() (*paillier.ModProof, error) 
 	return paillier.UnmarshalModProof(p.GetW(), p.GetX(), p.GetA(), p.GetB(), p.GetZ())
 }
 
-
 func (p *DGRound2Message1_DLNProof) ValidateBasic() bool {
 	return p != nil &&
 		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
@@ -277,7 +276,121 @@ func (m *DGRound3Message2) UnmarshalVDeCommitment() cmt.HashDeCommitment {
 
 // ----- //
 
-func NewDGRound4Message(
+func NewDGRound4Message1(
+	to *tss.PartyID,
+	from *tss.PartyID,
+	proof, proofTilde *paillier.FactorProof,
+) tss.ParsedMessage {
+	meta := tss.MessageRouting{
+		From:             from,
+		To:               []*tss.PartyID{to},
+		IsBroadcast:      false,
+		IsToOldCommittee: false,
+	}
+	var facProof *DGRound4Message1_FactorProof
+	if proof != nil {
+		facProof = &DGRound4Message1_FactorProof{
+			P:     common.MarshalSigned(proof.P),
+			Q:     common.MarshalSigned(proof.Q),
+			A:     common.MarshalSigned(proof.A),
+			B:     common.MarshalSigned(proof.B),
+			T:     common.MarshalSigned(proof.T),
+			Sigma: common.MarshalSigned(proof.Sigma),
+			Z1:    common.MarshalSigned(proof.Z1),
+			Z2:    common.MarshalSigned(proof.Z2),
+			W1:    common.MarshalSigned(proof.W1),
+			W2:    common.MarshalSigned(proof.W2),
+			V:     common.MarshalSigned(proof.V),
+		}
+	} else {
+		// The proof is nil when creating the self-message in round 2.
+		facProof = nil
+	}
+	var facProofTilde *DGRound4Message1_FactorProof
+	if proofTilde != nil {
+		facProofTilde = &DGRound4Message1_FactorProof{
+			P:     common.MarshalSigned(proofTilde.P),
+			Q:     common.MarshalSigned(proofTilde.Q),
+			A:     common.MarshalSigned(proofTilde.A),
+			B:     common.MarshalSigned(proofTilde.B),
+			T:     common.MarshalSigned(proofTilde.T),
+			Sigma: common.MarshalSigned(proofTilde.Sigma),
+			Z1:    common.MarshalSigned(proofTilde.Z1),
+			Z2:    common.MarshalSigned(proofTilde.Z2),
+			W1:    common.MarshalSigned(proofTilde.W1),
+			W2:    common.MarshalSigned(proofTilde.W2),
+			V:     common.MarshalSigned(proofTilde.V),
+		}
+	} else {
+		// The proof is nil when creating the self-message in round 2.
+		facProofTilde = nil
+	}
+	content := &DGRound4Message1{
+		Facproof: facProof,
+		FacproofTilde: facProofTilde,
+	}
+	msg := tss.NewMessageWrapper(meta, content)
+	return tss.NewMessage(meta, content, msg)
+}
+
+func (m *DGRound4Message1) ValidateBasic() bool {
+	return m != nil &&
+		m.GetFacproof().ValidateBasic() &&
+		m.GetFacproofTilde().ValidateBasic()
+}
+
+func (m *DGRound4Message1) UnmarshalFactorProof() *paillier.FactorProof {
+	proof := m.GetFacproof()
+	return &paillier.FactorProof{
+		P:     common.UnmarshalSigned(proof.P),
+		Q:     common.UnmarshalSigned(proof.Q),
+		A:     common.UnmarshalSigned(proof.A),
+		B:     common.UnmarshalSigned(proof.B),
+		T:     common.UnmarshalSigned(proof.T),
+		Sigma: common.UnmarshalSigned(proof.Sigma),
+		Z1:    common.UnmarshalSigned(proof.Z1),
+		Z2:    common.UnmarshalSigned(proof.Z2),
+		W1:    common.UnmarshalSigned(proof.W1),
+		W2:    common.UnmarshalSigned(proof.W2),
+		V:     common.UnmarshalSigned(proof.V),
+	}
+}
+
+func (m *DGRound4Message1) UnmarshalFactorProofTilde() *paillier.FactorProof {
+	proof := m.GetFacproofTilde()
+	return &paillier.FactorProof{
+		P:     common.UnmarshalSigned(proof.P),
+		Q:     common.UnmarshalSigned(proof.Q),
+		A:     common.UnmarshalSigned(proof.A),
+		B:     common.UnmarshalSigned(proof.B),
+		T:     common.UnmarshalSigned(proof.T),
+		Sigma: common.UnmarshalSigned(proof.Sigma),
+		Z1:    common.UnmarshalSigned(proof.Z1),
+		Z2:    common.UnmarshalSigned(proof.Z2),
+		W1:    common.UnmarshalSigned(proof.W1),
+		W2:    common.UnmarshalSigned(proof.W2),
+		V:     common.UnmarshalSigned(proof.V),
+	}
+}
+
+func (proof *DGRound4Message1_FactorProof) ValidateBasic() bool {
+	return proof != nil &&
+		common.NonEmptyBytes(proof.GetP()) &&
+		common.NonEmptyBytes(proof.GetQ()) &&
+		common.NonEmptyBytes(proof.GetA()) &&
+		common.NonEmptyBytes(proof.GetB()) &&
+		common.NonEmptyBytes(proof.GetT()) &&
+		common.NonEmptyBytes(proof.GetSigma()) &&
+		common.NonEmptyBytes(proof.GetZ1()) &&
+		common.NonEmptyBytes(proof.GetZ2()) &&
+		common.NonEmptyBytes(proof.GetW1()) &&
+		common.NonEmptyBytes(proof.GetW2()) &&
+		common.NonEmptyBytes(proof.GetV())
+}
+
+// ----- //
+
+func NewDGRound4Message2(
 	to []*tss.PartyID,
 	from *tss.PartyID,
 ) tss.ParsedMessage {
@@ -287,11 +400,11 @@ func NewDGRound4Message(
 		IsBroadcast:             true,
 		IsToOldAndNewCommittees: true,
 	}
-	content := &DGRound4Message{}
+	content := &DGRound4Message2{}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg)
 }
 
-func (m *DGRound4Message) ValidateBasic() bool {
+func (m *DGRound4Message2) ValidateBasic() bool {
 	return true
 }

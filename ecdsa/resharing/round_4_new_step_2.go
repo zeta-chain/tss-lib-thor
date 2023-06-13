@@ -217,38 +217,77 @@ func (round *round4) Start() *tss.Error {
 		return round.WrapError(errors2.Wrapf(err, "newBigXj.Add(Vc[c].ScalarMult(z))"), paiProofCulprits...)
 	}
 
+	for j, Pj := range round.NewParties().IDs() {
+
+		if common.Eq(Pi.KeyInt(), Pj.KeyInt()) {
+			round.temp.dgRound4Message1s[j] = NewDGRound4Message1(Pj, Pi, nil, nil)
+		}
+
+		// Add factor proofs
+		H1j, H2j, NTildej := round.save.H1j[j], round.save.H2j[j], round.save.NTildej[j]
+		facProof := round.save.LocalPreParams.PaillierSK.FactorProof(NTildej, H1j, H2j)
+		facProofTilde := round.temp.skTilde.FactorProof(NTildej, H1j, H2j)
+
+		r4msg1 := NewDGRound4Message1(Pj, Pi, facProof, facProofTilde)
+		round.out <- r4msg1
+	}
+	
 	round.temp.newXi = newXi
 	round.temp.newKs = newKs
 	round.temp.newBigXjs = newBigXjs
 
 	// Send an "ACK" message to both committees to signal that we're ready to save our data
-	r4msg := NewDGRound4Message(round.OldAndNewParties(), Pi)
-	round.temp.dgRound4Messages[i] = r4msg
+	r4msg := NewDGRound4Message2(round.OldAndNewParties(), Pi)
+	round.temp.dgRound4Message2s[i] = r4msg
 	round.out <- r4msg
 
 	return nil
 }
 
 func (round *round4) CanAccept(msg tss.ParsedMessage) bool {
-	if _, ok := msg.Content().(*DGRound4Message); ok {
+	if _, ok := msg.Content().(*DGRound4Message1); ok {
+		return !msg.IsBroadcast()
+	}
+	if _, ok := msg.Content().(*DGRound4Message2); ok {
 		return msg.IsBroadcast()
 	}
 	return false
 }
 
 func (round *round4) Update() (bool, *tss.Error) {
-	// accept messages from new -> old&new committees
-	for j, msg := range round.temp.dgRound4Messages {
-		if round.newOK[j] {
-			continue
+	if round.ReSharingParameters.IsNewCommittee() {
+		// accept messages from new -> everyone
+		for j, msg1 := range round.temp.dgRound4Message2s {
+			if round.newOK[j] {
+				continue
+			}
+			if msg1 == nil || !round.CanAccept(msg1) {
+				return false, nil
+			}
+			// accept message from new -> new committee
+			msg2 := round.temp.dgRound4Message1s[j]
+			if msg2 == nil || !round.CanAccept(msg2) {
+				return false, nil
+			}
+			round.newOK[j] = true
 		}
-		if msg == nil || !round.CanAccept(msg) {
-			return false, nil
+	} else if round.ReSharingParams().IsOldCommittee() {
+		// accept messages from new -> old committee
+		for j, msg := range round.temp.dgRound4Message2s {
+			if round.newOK[j] {
+				continue
+			}
+			if msg == nil || !round.CanAccept(msg) {
+				return false, nil
+			}
+			round.newOK[j] = true
 		}
-		round.newOK[j] = true
+	}  else {
+		return false, round.WrapError(errors.New("this party is not in the old or the new committee"), round.PartyID())
 	}
 	return true, nil
 }
+
 
 func (round *round4) NextRound() tss.Round {
 	round.started = false

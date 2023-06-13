@@ -65,7 +65,28 @@ message DGRound3Message2 {
 }
 
 /*
+ * The Round 4 data is sent to other peers of the New Committee in this message.
+ */
+message DGRound4Message1 {
+    message FactorProof {
+        bytes p = 1;
+        bytes q = 2;
+        bytes a = 3;
+        bytes b = 4;
+        bytes t = 5;
+        bytes sigma = 6;
+        bytes z1 = 7;
+        bytes z2 = 8;
+        bytes w1 = 9;
+        bytes w2 = 10;
+        bytes v = 11;
+    }
+    FactorProof facproof = 1;
+    FactorProof facproof_tilde = 2;
+}
+
+/*
  * The Round 4 "ACK" is broadcast to peers of the Old and New Committees from the New Committee in this message.
  */
-message DGRound4Message {
+message DGRound4Message2 {
 }
