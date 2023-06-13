@@ -25,6 +25,13 @@ message DGRound2Message1 {
         repeated bytes alpha = 1;
         repeated bytes t = 2;
     }
+    message ModProof {
+        bytes w = 1;
+        repeated bytes x = 2;
+        repeated bool a = 3;
+        repeated bool b = 4;
+        repeated bytes z = 5;
+    }
     reserved 6, 7;
     bytes paillier_n = 1;
     repeated bytes paillier_proof = 2;
@@ -33,6 +40,8 @@ message DGRound2Message1 {
     bytes h2 = 5;
     DLNProof dlnproof_1 = 8;
     DLNProof dlnproof_2 = 9;
+    ModProof modproof = 10;
+    ModProof modproof_tilde = 11;
 }
 
 /*

@@ -8,8 +8,10 @@ package resharing
 
 import (
 	"errors"
+	"math/big"
 
 	"github.com/bnb-chain/tss-lib/crypto/dlnproof"
+	"github.com/bnb-chain/tss-lib/crypto/paillier"
 	"github.com/bnb-chain/tss-lib/ecdsa/keygen"
 	"github.com/bnb-chain/tss-lib/tss"
 )
@@ -70,10 +72,34 @@ func (round *round2) Start() *tss.Error {
 	dlnProof1 := dlnproof.NewDLNProof(h1i, h2i, alpha, p, q, NTildei)
 	dlnProof2 := dlnproof.NewDLNProof(h2i, h1i, beta, p, q, NTildei)
 
+	modProof := preParams.PaillierSK.ModProof()
+
+	// NTildei = (2p+1) * (2q+1)
+	// phi(NTildei) = ((2p+1) - 1) * ((2q+1) - 1) = 2p * 2q
+	pp := new(big.Int).Add(p, p)
+	qq := new(big.Int).Add(q, q)
+	phiNTilde := new(big.Int).Mul(pp, qq)
+	// As per paillier.go
+	gcdTilde := new(big.Int).GCD(nil, nil, pp, qq)
+	lambdaNTilde := new(big.Int).Div(phiNTilde, gcdTilde)
+	pkTilde := &paillier.PublicKey{N: NTildei}
+	skTilde := &paillier.PrivateKey{PublicKey: *pkTilde, LambdaN: lambdaNTilde, PhiN: phiNTilde}
+
+	modProofTilde := skTilde.ModProof()
+
 	paillierPf := preParams.PaillierSK.Proof(Pi.KeyInt(), round.save.ECDSAPub)
 	r2msg2, err := NewDGRound2Message1(
 		round.NewParties().IDs().Exclude(round.PartyID()), round.PartyID(),
-		&preParams.PaillierSK.PublicKey, paillierPf, preParams.NTildei, preParams.H1i, preParams.H2i, dlnProof1, dlnProof2)
+		&preParams.PaillierSK.PublicKey,
+		paillierPf,
+		preParams.NTildei,
+		preParams.H1i,
+		preParams.H2i,
+		dlnProof1,
+		dlnProof2,
+		modProof,
+		modProofTilde,
+	)
 	if err != nil {
 		return round.WrapError(err, Pi)
 	}
@@ -85,6 +111,8 @@ func (round *round2) Start() *tss.Error {
 	round.save.PaillierPKs[i] = &preParams.PaillierSK.PublicKey
 	round.save.NTildej[i] = preParams.NTildei
 	round.save.H1j[i], round.save.H2j[i] = preParams.H1i, preParams.H2i
+
+	round.temp.skTilde = skTilde
 
 	return nil
 }

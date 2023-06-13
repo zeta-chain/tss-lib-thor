@@ -82,6 +82,7 @@ func NewDGRound2Message1(
 	paillierPf paillier.Proof,
 	NTildei, H1i, H2i *big.Int,
 	dlnProof1, dlnProof2 *dlnproof.Proof,
+	modProof, modProofTilde *paillier.ModProof,
 ) (tss.ParsedMessage, error) {
 	meta := tss.MessageRouting{
 		From:             from,
@@ -104,6 +105,20 @@ func NewDGRound2Message1(
 			Alpha: common.BigIntsToBytes(dlnProof2.Alpha[:]),
 			T:     common.BigIntsToBytes(dlnProof2.T[:]),
 		},
+		Modproof: &DGRound2Message1_ModProof{
+			W: modProof.W.Bytes(),
+			X: common.BigIntsToBytes(modProof.X[:]),
+			A: modProof.A[:],
+			B: modProof.B[:],
+			Z: common.BigIntsToBytes(modProof.Z[:]),
+		},
+		ModproofTilde: &DGRound2Message1_ModProof{
+			W: modProofTilde.W.Bytes(),
+			X: common.BigIntsToBytes(modProofTilde.X[:]),
+			A: modProofTilde.A[:],
+			B: modProofTilde.B[:],
+			Z: common.BigIntsToBytes(modProofTilde.Z[:]),
+		},
 	}
 	msg := tss.NewMessageWrapper(meta, content)
 	return tss.NewMessage(meta, content, msg), nil
@@ -117,7 +132,9 @@ func (m *DGRound2Message1) ValidateBasic() bool {
 		common.NonEmptyBytes(m.H1) &&
 		common.NonEmptyBytes(m.H2) &&
 		m.GetDlnproof_1().ValidateBasic() &&
-		m.GetDlnproof_2().ValidateBasic()
+		m.GetDlnproof_2().ValidateBasic() &&
+		m.GetModproof().ValidateBasic() &&
+		m.GetModproofTilde().ValidateBasic()
 }
 
 func (m *DGRound2Message1) UnmarshalPaillierPK() *paillier.PublicKey {
@@ -155,10 +172,30 @@ func (m *DGRound2Message1) UnmarshalDLNProof2() (*dlnproof.Proof, error) {
 	return dlnproof.UnmarshalDLNProof(p.GetAlpha(), p.GetT())
 }
 
+func (m *DGRound2Message1) UnmarshalModProof() (*paillier.ModProof, error) {
+	p := m.GetModproof()
+	return paillier.UnmarshalModProof(p.GetW(), p.GetX(), p.GetA(), p.GetB(), p.GetZ())
+}
+
+func (m *DGRound2Message1) UnmarshalModProofTilde() (*paillier.ModProof, error) {
+	p := m.GetModproofTilde()
+	return paillier.UnmarshalModProof(p.GetW(), p.GetX(), p.GetA(), p.GetB(), p.GetZ())
+}
+
+
 func (p *DGRound2Message1_DLNProof) ValidateBasic() bool {
 	return p != nil &&
 		common.NonEmptyMultiBytes(p.GetAlpha(), dlnproof.Iterations) &&
 		common.NonEmptyMultiBytes(p.GetT(), dlnproof.Iterations)
+}
+
+func (p *DGRound2Message1_ModProof) ValidateBasic() bool {
+	return p != nil &&
+		common.NonEmptyBytes(p.GetW()) &&
+		common.NonEmptyMultiBytes(p.GetX(), paillier.PARAM_M) &&
+		common.NonEmptyBools(p.GetA(), paillier.PARAM_M) &&
+		common.NonEmptyBools(p.GetB(), paillier.PARAM_M) &&
+		common.NonEmptyMultiBytes(p.GetZ(), paillier.PARAM_M)
 }
 
 // ----- //

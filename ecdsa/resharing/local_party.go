@@ -13,6 +13,7 @@ import (
 	"github.com/bnb-chain/tss-lib/common"
 	"github.com/bnb-chain/tss-lib/crypto"
 	cmt "github.com/bnb-chain/tss-lib/crypto/commitments"
+	"github.com/bnb-chain/tss-lib/crypto/paillier"
 	"github.com/bnb-chain/tss-lib/crypto/vss"
 	"github.com/bnb-chain/tss-lib/ecdsa/keygen"
 	"github.com/bnb-chain/tss-lib/tss"
@@ -52,6 +53,7 @@ type (
 		NewVs     vss.Vs
 		NewShares vss.Shares
 		VD        cmt.HashDeCommitment
+		skTilde   *paillier.PrivateKey
 
 		// temporary storage of data that is persisted by the new party in round 5 if all "ACK" messages are received
 		newXi     *big.Int
