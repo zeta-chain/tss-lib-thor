@@ -24,9 +24,6 @@ func (round *round5) Start() *tss.Error {
 
 	round.allOldOK()
 
-	Pi := round.PartyID()
-	i := Pi.Index
-
 	if !round.IsNewCommittee() {
 		if round.IsOldCommittee() {
 			round.input.Xi.SetInt64(0)
@@ -35,6 +32,9 @@ func (round *round5) Start() *tss.Error {
 		round.end <- *round.save
 		return nil
 	}
+
+	Pi := round.PartyID()
+	i := Pi.Index
 
 	// 21.
 	// for this P: SAVE data
