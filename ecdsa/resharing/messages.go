@@ -326,7 +326,7 @@ func NewDGRound4Message1(
 		facProofTilde = nil
 	}
 	content := &DGRound4Message1{
-		Facproof: facProof,
+		Facproof:      facProof,
 		FacproofTilde: facProofTilde,
 	}
 	msg := tss.NewMessageWrapper(meta, content)

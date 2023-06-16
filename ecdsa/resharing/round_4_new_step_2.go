@@ -231,7 +231,7 @@ func (round *round4) Start() *tss.Error {
 		r4msg1 := NewDGRound4Message1(Pj, Pi, facProof, facProofTilde)
 		round.out <- r4msg1
 	}
-	
+
 	round.temp.newXi = newXi
 	round.temp.newKs = newKs
 	round.temp.newBigXjs = newBigXjs
@@ -282,12 +282,11 @@ func (round *round4) Update() (bool, *tss.Error) {
 			}
 			round.newOK[j] = true
 		}
-	}  else {
+	} else {
 		return false, round.WrapError(errors.New("this party is not in the old or the new committee"), round.PartyID())
 	}
 	return true, nil
 }
-
 
 func (round *round4) NextRound() tss.Round {
 	round.started = false
