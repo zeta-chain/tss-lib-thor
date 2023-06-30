@@ -44,7 +44,8 @@ type (
 		dgRound3Message1s,
 		dgRound3Message2s,
 		dgRound4Message1s,
-		dgRound4Message2s []tss.ParsedMessage
+		dgRound4Message2s,
+		dgRound5Messages []tss.ParsedMessage
 	}
 
 	localTempData struct {
@@ -95,6 +96,7 @@ func NewLocalParty(
 	p.temp.dgRound3Message2s = make([]tss.ParsedMessage, oldPartyCount)          // "
 	p.temp.dgRound4Message1s = make([]tss.ParsedMessage, params.NewPartyCount()) // from n of New Committee
 	p.temp.dgRound4Message2s = make([]tss.ParsedMessage, params.NewPartyCount()) // "
+	p.temp.dgRound5Messages = make([]tss.ParsedMessage, params.NewPartyCount())  // "
 	// save data init
 	if key.LocalPreParams.ValidateWithProof() {
 		p.save.LocalPreParams = key.LocalPreParams
@@ -129,7 +131,7 @@ func (p *LocalParty) ValidateMessage(msg tss.ParsedMessage) (bool, *tss.Error) {
 	// check that the message's "from index" will fit into the array
 	var maxFromIdx int
 	switch msg.Content().(type) {
-	case *DGRound2Message1, *DGRound2Message2, *DGRound4Message1, *DGRound4Message2:
+	case *DGRound2Message1, *DGRound2Message2, *DGRound4Message1, *DGRound4Message2, *DGRound5Message:
 		maxFromIdx = len(p.params.NewParties().IDs()) - 1
 	default:
 		maxFromIdx = len(p.params.OldParties().IDs()) - 1
@@ -165,6 +167,8 @@ func (p *LocalParty) StoreMessage(msg tss.ParsedMessage) (bool, *tss.Error) {
 		p.temp.dgRound4Message1s[fromPIdx] = msg
 	case *DGRound4Message2:
 		p.temp.dgRound4Message2s[fromPIdx] = msg
+	case *DGRound5Message:
+		p.temp.dgRound5Messages[fromPIdx] = msg
 	default: // unrecognised message, just ignore!
 		common.Logger.Warningf("unrecognised message ignored: %v", msg)
 		return false, nil

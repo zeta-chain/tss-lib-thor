@@ -21,36 +21,17 @@ func (round *round5) Start() *tss.Error {
 	}
 	round.number = 5
 	round.started = true
+	round.resetOK() // resets both round.oldOK and round.newOK
 
 	round.allOldOK()
 
 	if !round.IsNewCommittee() {
-		if round.IsOldCommittee() {
-			round.input.Xi.SetInt64(0)
-			round.allNewOK()
-		}
-		round.end <- *round.save
+		// both committees proceed to round 6 after receiving "ACK" messages from the new committee
 		return nil
 	}
 
 	Pi := round.PartyID()
 	i := Pi.Index
-
-	// 21.
-	// for this P: SAVE data
-	round.save.BigXj = round.temp.newBigXjs
-	round.save.ShareID = round.PartyID().KeyInt()
-	round.save.Xi = round.temp.newXi
-	round.save.Ks = round.temp.newKs
-
-	// misc: build list of paillier public keys to save
-	for j, msg := range round.temp.dgRound2Message1s {
-		if j == i {
-			continue
-		}
-		r2msg1 := msg.Content().(*DGRound2Message1)
-		round.save.PaillierPKs[j] = r2msg1.UnmarshalPaillierPK()
-	}
 
 	Ps := round.NewParties().IDs()
 
@@ -72,7 +53,10 @@ func (round *round5) Start() *tss.Error {
 			r4msg1 := round.temp.dgRound4Message1s[j].Content().(*DGRound4Message1)
 
 			FacProof := r4msg1.UnmarshalFactorProof()
-			pkN := round.save.PaillierPKs[j].N
+
+			r2msg1 := round.temp.dgRound2Message1s[j].Content().(*DGRound2Message1)
+			pk := r2msg1.UnmarshalPaillierPK()
+			pkN := pk.N
 			NTilde := round.save.LocalPreParams.NTildei
 			H1i, H2i := round.save.LocalPreParams.H1i, round.save.LocalPreParams.H2i
 			ok, err := FacProof.FactorVerify(pkN, NTilde, H1i, H2i)
@@ -101,14 +85,11 @@ func (round *round5) Start() *tss.Error {
 		culprits := make([]*tss.PartyID, 0, len(Ps))
 		for j, Pj := range Ps {
 			if common.Eq(Pi.KeyInt(), Pj.KeyInt()) {
-				round.newOK[j] = true
 				continue
 			}
 			proofResults[j] = <-chs[j]
 			if err := proofResults[j].unWrappedErr; err != nil {
 				culprits = append(culprits, Pj)
-			} else {
-				round.newOK[j] = true
 			}
 		}
 		var multiErr error
@@ -123,18 +104,39 @@ func (round *round5) Start() *tss.Error {
 		}
 	}
 
-	round.end <- *round.save
+	r5msg := NewDGRound5Message(round.OldAndNewParties(), Pi)
+	round.temp.dgRound5Messages[i] = r5msg
+	round.out <- r5msg
 	return nil
 }
 
 func (round *round5) CanAccept(msg tss.ParsedMessage) bool {
+	// accept messages from new -> both committees
+	if _, ok := msg.Content().(*DGRound5Message); ok {
+		return msg.IsBroadcast()
+	}
 	return false
 }
 
 func (round *round5) Update() (bool, *tss.Error) {
-	return false, nil
+	if round.ReSharingParameters.IsNewCommittee() || round.ReSharingParams().IsOldCommittee() {
+		// accept messages from new -> everyone
+		for j, msg := range round.temp.dgRound5Messages {
+			if round.newOK[j] {
+				continue
+			}
+			if msg == nil || !round.CanAccept(msg) {
+				return false, nil
+			}
+			round.newOK[j] = true
+		}
+	} else {
+		return false, round.WrapError(errors.New("this party is not in the old or the new committee"), round.PartyID())
+	}
+	return true, nil
 }
 
 func (round *round5) NextRound() tss.Round {
-	return nil // both committees are finished!
+	round.started = false
+	return &round6{round}
 }

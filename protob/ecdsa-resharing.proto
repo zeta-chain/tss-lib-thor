@@ -90,3 +90,9 @@ message DGRound4Message1 {
  */
 message DGRound4Message2 {
 }
+
+/*
+ * The Round 5 "ACK" is broadcast to peers of the Old and New Committees from the New Committee in this message.
+ */
+message DGRound5Message {
+}

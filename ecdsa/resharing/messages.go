@@ -408,3 +408,22 @@ func NewDGRound4Message2(
 func (m *DGRound4Message2) ValidateBasic() bool {
 	return true
 }
+
+func NewDGRound5Message(
+	to []*tss.PartyID,
+	from *tss.PartyID,
+) tss.ParsedMessage {
+	meta := tss.MessageRouting{
+		From:                    from,
+		To:                      to,
+		IsBroadcast:             true,
+		IsToOldAndNewCommittees: true,
+	}
+	content := &DGRound5Message{}
+	msg := tss.NewMessageWrapper(meta, content)
+	return tss.NewMessage(meta, content, msg)
+}
+
+func (m *DGRound5Message) ValidateBasic() bool {
+	return true
+}
