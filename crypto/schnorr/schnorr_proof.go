@@ -39,11 +39,7 @@ func NewZKProof(x *big.Int, X *crypto.ECPoint) (*ZKProof, error) {
 	a := common.GetRandomPositiveInt(q)
 	alpha := crypto.ScalarBaseMult(ec, a)
 
-	var c *big.Int
-	{
-		cHash := common.SHA512_256i(X.X(), X.Y(), g.X(), g.Y(), alpha.X(), alpha.Y())
-		c = common.RejectionSample(q, cHash)
-	}
+	c := common.HashToN(q, X.X(), X.Y(), g.X(), g.Y(), alpha.X(), alpha.Y())
 	t := new(big.Int).Mul(c, x)
 	t = common.ModInt(q).Add(a, t)
 
@@ -60,11 +56,8 @@ func (pf *ZKProof) Verify(X *crypto.ECPoint) bool {
 	q := ecParams.N
 	g := crypto.NewECPointNoCurveCheck(ec, ecParams.Gx, ecParams.Gy)
 
-	var c *big.Int
-	{
-		cHash := common.SHA512_256i(X.X(), X.Y(), g.X(), g.Y(), pf.Alpha.X(), pf.Alpha.Y())
-		c = common.RejectionSample(q, cHash)
-	}
+	c := common.HashToN(q, X.X(), X.Y(), g.X(), g.Y(), pf.Alpha.X(), pf.Alpha.Y())
+
 	tG := crypto.ScalarBaseMult(ec, pf.T)
 	Xc := X.ScalarMult(c)
 	aXc, err := pf.Alpha.Add(Xc)
@@ -93,11 +86,8 @@ func NewZKVProof(V, R *crypto.ECPoint, s, l *big.Int) (*ZKVProof, error) {
 	bG := crypto.ScalarBaseMult(ec, b)
 	alpha, _ := aR.Add(bG) // already on the curve.
 
-	var c *big.Int
-	{
-		cHash := common.SHA512_256i(V.X(), V.Y(), R.X(), R.Y(), g.X(), g.Y(), alpha.X(), alpha.Y())
-		c = common.RejectionSample(q, cHash)
-	}
+	c := common.HashToN(q, V.X(), V.Y(), R.X(), R.Y(), g.X(), g.Y(), alpha.X(), alpha.Y())
+
 	modQ := common.ModInt(q)
 	t := modQ.Add(a, new(big.Int).Mul(c, s))
 	u := modQ.Add(b, new(big.Int).Mul(c, l))
@@ -114,11 +104,8 @@ func (pf *ZKVProof) Verify(V, R *crypto.ECPoint) bool {
 	q := ecParams.N
 	g := crypto.NewECPointNoCurveCheck(ec, ecParams.Gx, ecParams.Gy)
 
-	var c *big.Int
-	{
-		cHash := common.SHA512_256i(V.X(), V.Y(), R.X(), R.Y(), g.X(), g.Y(), pf.Alpha.X(), pf.Alpha.Y())
-		c = common.RejectionSample(q, cHash)
-	}
+	c := common.HashToN(q, V.X(), V.Y(), R.X(), R.Y(), g.X(), g.Y(), pf.Alpha.X(), pf.Alpha.Y())
+
 	tR := R.ScalarMult(pf.T)
 	uG := crypto.ScalarBaseMult(ec, pf.U)
 	tRuG, _ := tR.Add(uG) // already on the curve.

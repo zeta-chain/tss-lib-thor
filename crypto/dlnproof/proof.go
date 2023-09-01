@@ -16,7 +16,6 @@ import (
 	"math/big"
 
 	"github.com/bnb-chain/tss-lib/common"
-	cmts "github.com/bnb-chain/tss-lib/crypto/commitments"
 )
 
 const Iterations = 128
@@ -72,6 +71,9 @@ func (p *Proof) Verify(h1, h2, N *big.Int) bool {
 	if h1_.Cmp(h2_) == 0 {
 		return false
 	}
+	if !common.Coprime(h1_, N) || !common.Coprime(h2_, N) {
+		return false
+	}
 	for i := range p.T {
 		a := new(big.Int).Mod(p.T[i], N)
 		if a.Cmp(one) != 1 || a.Cmp(N) != -1 {
@@ -103,43 +105,22 @@ func (p *Proof) Verify(h1, h2, N *big.Int) bool {
 	return true
 }
 
-func (p *Proof) Serialize() ([][]byte, error) {
-	cb := cmts.NewBuilder()
-	cb = cb.AddPart(p.Alpha[:])
-	cb = cb.AddPart(p.T[:])
-	ints, err := cb.Secrets()
-	if err != nil {
-		return nil, err
+func UnmarshalDLNProof(alphas, ts [][]byte) (*Proof, error) {
+	if len1 := len(alphas); len1 != Iterations {
+		return nil, fmt.Errorf("UnmarshalDLNProof expected %d Alphas but received %d", Iterations, len1)
 	}
-	bzs := make([][]byte, len(ints))
-	for i, part := range ints {
-		if part == nil {
-			bzs[i] = []byte{}
-			continue
-		}
-		bzs[i] = part.Bytes()
+	if len2 := len(ts); len2 != Iterations {
+		return nil, fmt.Errorf("UnmarshalDLNProof expected %d Ts but received %d", Iterations, len2)
 	}
-	return bzs, nil
-}
+	alpha := common.MultiBytesToBigInts(alphas)
+	t := common.MultiBytesToBigInts(ts)
 
-func UnmarshalDLNProof(bzs [][]byte) (*Proof, error) {
-	bis := make([]*big.Int, len(bzs))
-	for i := range bis {
-		bis[i] = new(big.Int).SetBytes(bzs[i])
+	var Alpha [Iterations]*big.Int
+	var T [Iterations]*big.Int
+
+	for i := 0; i < Iterations; i++ {
+		Alpha[i] = alpha[i]
+		T[i] = t[i]
 	}
-	parsed, err := cmts.ParseSecrets(bis)
-	if err != nil {
-		return nil, err
-	}
-	if len(parsed) != 2 {
-		return nil, fmt.Errorf("UnmarshalDLNProof expected %d parts but got %d", 2, len(parsed))
-	}
-	pf := new(Proof)
-	if len1 := copy(pf.Alpha[:], parsed[0]); len1 != Iterations {
-		return nil, fmt.Errorf("UnmarshalDLNProof expected %d but copied %d", Iterations, len1)
-	}
-	if len2 := copy(pf.T[:], parsed[1]); len2 != Iterations {
-		return nil, fmt.Errorf("UnmarshalDLNProof expected %d but copied %d", Iterations, len2)
-	}
-	return pf, nil
+	return &Proof{Alpha, T}, nil
 }

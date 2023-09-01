@@ -12,20 +12,49 @@ option go_package = "ecdsa/keygen";
  * Represents a BROADCAST message sent during Round 1 of the ECDSA TSS keygen protocol.
  */
 message KGRound1Message {
+    message DLNProof {
+        repeated bytes alpha = 1;
+        repeated bytes t = 2;
+    }
+    message ModProof {
+        bytes w = 1;
+        repeated bytes x = 2;
+        repeated bool a = 3;
+        repeated bool b = 4;
+        repeated bytes z = 5;
+    }
+    reserved 6, 7;
     bytes commitment = 1;
     bytes paillier_n = 2;
     bytes n_tilde = 3;
     bytes h1 = 4;
     bytes h2 = 5;
-    repeated bytes dlnproof_1 = 6;
-    repeated bytes dlnproof_2 = 7;
+    DLNProof dlnproof_1 = 8;
+    DLNProof dlnproof_2 = 9;
+    ModProof modproof = 10;
+    ModProof modproof_tilde = 11;
 }
 
 /*
  * Represents a P2P message sent to each party during Round 2 of the ECDSA TSS keygen protocol.
  */
 message KGRound2Message1 {
+    message FactorProof {
+        bytes p = 1;
+        bytes q = 2;
+        bytes a = 3;
+        bytes b = 4;
+        bytes t = 5;
+        bytes sigma = 6;
+        bytes z1 = 7;
+        bytes z2 = 8;
+        bytes w1 = 9;
+        bytes w2 = 10;
+        bytes v = 11;
+    }
     bytes share = 1;
+    FactorProof facproof = 2;
+    FactorProof facproof_tilde = 3;
 }
 
 /*

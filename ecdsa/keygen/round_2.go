@@ -32,7 +32,7 @@ func (round *round2) Start() *tss.Error {
 		round.PartyID(),
 		round.Concurrency(),
 	)
-	dlnVerifier := NewDlnProofVerifier(round.Concurrency())
+	verifier := NewProofVerifier(round.Concurrency())
 
 	i := round.PartyID().Index
 
@@ -40,6 +40,8 @@ func (round *round2) Start() *tss.Error {
 	h1H2Map := make(map[string]struct{}, len(round.temp.kgRound1Messages)*2)
 	dlnProof1FailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
 	dlnProof2FailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
+	modProofFailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
+	modProofTildeFailCulprits := make([]*tss.PartyID, len(round.temp.kgRound1Messages))
 	wg := new(sync.WaitGroup)
 	for j, msg := range round.temp.kgRound1Messages {
 		r1msg := msg.Content().(*KGRound1Message)
@@ -66,19 +68,31 @@ func (round *round2) Start() *tss.Error {
 		}
 		h1H2Map[h1JHex], h1H2Map[h2JHex] = struct{}{}, struct{}{}
 
-		wg.Add(2)
+		wg.Add(4)
 		_j := j
 		_msg := msg
 
-		dlnVerifier.VerifyDLNProof1(r1msg, H1j, H2j, NTildej, func(isValid bool) {
+		verifier.VerifyDLNProof1(r1msg, H1j, H2j, NTildej, func(isValid bool) {
 			if !isValid {
 				dlnProof1FailCulprits[_j] = _msg.GetFrom()
 			}
 			wg.Done()
 		})
-		dlnVerifier.VerifyDLNProof2(r1msg, H2j, H1j, NTildej, func(isValid bool) {
+		verifier.VerifyDLNProof2(r1msg, H2j, H1j, NTildej, func(isValid bool) {
 			if !isValid {
 				dlnProof2FailCulprits[_j] = _msg.GetFrom()
+			}
+			wg.Done()
+		})
+		verifier.VerifyModProof(r1msg, paillierPKj.N, func(isValid bool) {
+			if !isValid {
+				modProofFailCulprits[_j] = _msg.GetFrom()
+			}
+			wg.Done()
+		})
+		verifier.VerifyModProofTilde(r1msg, NTildej, func(isValid bool) {
+			if !isValid {
+				modProofTildeFailCulprits[_j] = _msg.GetFrom()
 			}
 			wg.Done()
 		})
@@ -87,6 +101,11 @@ func (round *round2) Start() *tss.Error {
 	for _, culprit := range append(dlnProof1FailCulprits, dlnProof2FailCulprits...) {
 		if culprit != nil {
 			return round.WrapError(errors.New("dln proof verification failed"), culprit)
+		}
+	}
+	for _, culprit := range append(modProofFailCulprits, modProofTildeFailCulprits...) {
+		if culprit != nil {
+			return round.WrapError(errors.New("mod proof verification failed"), culprit)
 		}
 	}
 	// save NTilde_j, h1_j, h2_j, ...
@@ -110,12 +129,16 @@ func (round *round2) Start() *tss.Error {
 	// 5. p2p send share ij to Pj
 	shares := round.temp.shares
 	for j, Pj := range round.Parties().IDs() {
-		r2msg1 := NewKGRound2Message1(Pj, round.PartyID(), shares[j])
 		// do not send to this Pj, but store for round 3
 		if j == i {
-			round.temp.kgRound2Message1s[j] = r2msg1
+			round.temp.kgRound2Message1s[j] = NewKGRound2Message1(Pj, round.PartyID(), shares[j], nil, nil)
 			continue
 		}
+		H1j, H2j, NTildej := round.save.H1j[j], round.save.H2j[j], round.save.NTildej[j]
+		facProof := round.save.LocalPreParams.PaillierSK.FactorProof(NTildej, H1j, H2j)
+		facProofTilde := round.temp.skTilde.FactorProof(NTildej, H1j, H2j)
+
+		r2msg1 := NewKGRound2Message1(Pj, round.PartyID(), shares[j], facProof, facProofTilde)
 		round.out <- r2msg1
 	}
 

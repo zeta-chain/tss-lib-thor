@@ -14,6 +14,7 @@ import (
 	"github.com/bnb-chain/tss-lib/crypto"
 	cmts "github.com/bnb-chain/tss-lib/crypto/commitments"
 	"github.com/bnb-chain/tss-lib/crypto/dlnproof"
+	"github.com/bnb-chain/tss-lib/crypto/paillier"
 	"github.com/bnb-chain/tss-lib/crypto/vss"
 	"github.com/bnb-chain/tss-lib/tss"
 )
@@ -95,6 +96,21 @@ func (round *round1) Start() *tss.Error {
 	dlnProof1 := dlnproof.NewDLNProof(h1i, h2i, alpha, p, q, NTildei)
 	dlnProof2 := dlnproof.NewDLNProof(h2i, h1i, beta, p, q, NTildei)
 
+	modProof := preParams.PaillierSK.ModProof()
+
+	// NTildei = (2p+1) * (2q+1)
+	// phi(NTildei) = ((2p+1) - 1) * ((2q+1) - 1) = 2p * 2q
+	pp := new(big.Int).Add(p, p)
+	qq := new(big.Int).Add(q, q)
+	phiNTilde := new(big.Int).Mul(pp, qq)
+	// As per paillier.go
+	gcdTilde := new(big.Int).GCD(nil, nil, pp, qq)
+	lambdaNTilde := new(big.Int).Div(phiNTilde, gcdTilde)
+	pkTilde := &paillier.PublicKey{N: NTildei}
+	skTilde := &paillier.PrivateKey{PublicKey: *pkTilde, LambdaN: lambdaNTilde, PhiN: phiNTilde}
+
+	modProofTilde := skTilde.ModProof()
+
 	// for this P: SAVE
 	// - shareID
 	// and keep in temporary storage:
@@ -109,10 +125,22 @@ func (round *round1) Start() *tss.Error {
 	round.save.PaillierPKs[i] = &preParams.PaillierSK.PublicKey
 	round.temp.deCommitPolyG = cmt.D
 
+	round.temp.skTilde = skTilde
+
 	// BROADCAST commitments, paillier pk + proof; round 1 message
 	{
 		msg, err := NewKGRound1Message(
-			round.PartyID(), cmt.C, &preParams.PaillierSK.PublicKey, preParams.NTildei, preParams.H1i, preParams.H2i, dlnProof1, dlnProof2)
+			round.PartyID(),
+			cmt.C,
+			&preParams.PaillierSK.PublicKey,
+			preParams.NTildei,
+			preParams.H1i,
+			preParams.H2i,
+			dlnProof1,
+			dlnProof2,
+			modProof,
+			modProofTilde,
+		)
 		if err != nil {
 			return round.WrapError(err, Pi)
 		}

@@ -69,11 +69,7 @@ func ProveRangeAlice(ec elliptic.Curve, pk *paillier.PublicKey, c, NTilde, h1, h
 	w = modNTilde.Mul(w, modNTilde.Exp(h2, gamma))
 
 	// 8-9. e'
-	var e *big.Int
-	{ // must use RejectionSample
-		eHash := common.SHA512_256i(append(pk.AsInts(), c, z, u, w)...)
-		e = common.RejectionSample(q, eHash)
-	}
+	e := common.HashToN(q, append(pk.AsInts(), c, z, u, w)...)
 
 	modN := common.ModInt(pk.N)
 	s := modN.Exp(r, e)
@@ -119,11 +115,7 @@ func (pf *RangeProofAlice) Verify(ec elliptic.Curve, pk *paillier.PublicKey, NTi
 	}
 
 	// 1-2. e'
-	var e *big.Int
-	{ // must use RejectionSample
-		eHash := common.SHA512_256i(append(pk.AsInts(), c, pf.Z, pf.U, pf.W)...)
-		e = common.RejectionSample(q, eHash)
-	}
+	e := common.HashToN(q, append(pk.AsInts(), c, pf.Z, pf.U, pf.W)...)
 
 	var products *big.Int // for the following conditionals
 	minusE := new(big.Int).Sub(zero, e)

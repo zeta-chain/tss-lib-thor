@@ -21,13 +21,27 @@ message DGRound1Message {
  * The Round 2 data is broadcast to other peers of the New Committee in this message.
  */
 message DGRound2Message1 {
+    message DLNProof {
+        repeated bytes alpha = 1;
+        repeated bytes t = 2;
+    }
+    message ModProof {
+        bytes w = 1;
+        repeated bytes x = 2;
+        repeated bool a = 3;
+        repeated bool b = 4;
+        repeated bytes z = 5;
+    }
+    reserved 6, 7;
     bytes paillier_n = 1;
     repeated bytes paillier_proof = 2;
     bytes n_tilde = 3;
     bytes h1 = 4;
     bytes h2 = 5;
-    repeated bytes dlnproof_1 = 6;
-    repeated bytes dlnproof_2 = 7;
+    DLNProof dlnproof_1 = 8;
+    DLNProof dlnproof_2 = 9;
+    ModProof modproof = 10;
+    ModProof modproof_tilde = 11;
 }
 
 /*
@@ -51,7 +65,34 @@ message DGRound3Message2 {
 }
 
 /*
+ * The Round 4 data is sent to other peers of the New Committee in this message.
+ */
+message DGRound4Message1 {
+    message FactorProof {
+        bytes p = 1;
+        bytes q = 2;
+        bytes a = 3;
+        bytes b = 4;
+        bytes t = 5;
+        bytes sigma = 6;
+        bytes z1 = 7;
+        bytes z2 = 8;
+        bytes w1 = 9;
+        bytes w2 = 10;
+        bytes v = 11;
+    }
+    FactorProof facproof = 1;
+    FactorProof facproof_tilde = 2;
+}
+
+/*
  * The Round 4 "ACK" is broadcast to peers of the Old and New Committees from the New Committee in this message.
  */
-message DGRound4Message {
+message DGRound4Message2 {
+}
+
+/*
+ * The Round 5 "ACK" is broadcast to peers of the Old and New Committees from the New Committee in this message.
+ */
+message DGRound5Message {
 }
