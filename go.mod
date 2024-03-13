@@ -12,7 +12,7 @@ require (
 	github.com/otiai10/primes v0.0.0-20180210170552-f6d2a1ba97c4
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.6.1
-	google.golang.org/protobuf v1.27.1
+	google.golang.org/protobuf v1.33.0
 )
 
 require (
